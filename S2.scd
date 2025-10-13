@@ -10,10 +10,10 @@ iMac Speakers
 
 // command + space => write "audio MIDI Setup"
 
-ServerOptions.inDevices[1]
+ServerOptions.inDevices[0]
 
-Server.default.options.inDevice_(ServerOptions.inDevices[1]);
-Server.default.options.outDevice_(ServerOptions.outDevices[1]);
+Server.default.options.inDevice_("iMac Microphone");
+Server.default.options.outDevice_("WH-1000XM4");
 s.reboot;
 
 (
