@@ -170,8 +170,15 @@
       "bases:Create new base": false
     }
   },
-  "active": "11306bdb84175479",
+  "active": "57900a90ce4efc06",
   "lastOpenFiles": [
+    "Week 6/week6workshop-share/1-aupro-am.scd",
+    "Week 6/week6workshop-share",
+    "Week 6/week6workshop-share.zip",
+    "Week 6/week6start/week6start.scd",
+    "Week 6/week6start",
+    "Week 6/week6start.zip",
+    "Week 6",
     "Week 4/AUPRO context week 4/Audio Programming workshop 1.md",
     "Week 4/AUPRO context week 4/AUPRO_week3.md",
     "Week 4/AUPRO context week 4/AUPRO_week1_slides.md",
@@ -183,12 +190,6 @@
     "Week 4/buffer_examples.scd.txt",
     "buffer_examples.scd.txt",
     "Welcome.md",
-    "Week 4/2025-10-20.md",
-    "Week 4/week4.scd",
-    "Week 4/Audio files/vocal.wav",
-    "Week 4/Audio files/guitar.wav",
-    "Week 4/Audio files/gtr8.wav",
-    "Week 4/Audio files/drums8.wav",
-    "Week 4/Audio files/bass8.wav"
+    "Week 4/2025-10-20.md"
   ]
 }
