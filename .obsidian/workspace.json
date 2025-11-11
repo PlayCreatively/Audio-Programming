@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Week 4/2025-10-20.md",
+                "file": "Audio Programming Proposal Form.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "2025-10-20"
+              "title": "Audio Programming Proposal Form"
             }
           }
         ],
@@ -170,8 +170,13 @@
       "bases:Create new base": false
     }
   },
-  "active": "57900a90ce4efc06",
+  "active": "11306bdb84175479",
   "lastOpenFiles": [
+    "README.txt",
+    "readme.txt",
+    "how difficult is it to recreate the DX7.md",
+    "Audio Programming Proposal Form.md",
+    "Week 4/2025-10-20.md",
     "Week 6/week6workshop-share/1-aupro-am.scd",
     "Week 6/week6workshop-share",
     "Week 6/week6workshop-share.zip",
@@ -187,9 +192,6 @@
     "Week 4/AUPRO context week 4/AUPRO-workshop-2-slides_2025-26.md",
     "Week 4/AUPRO context week 4",
     "Week 4/buffer_examples.scd",
-    "Week 4/buffer_examples.scd.txt",
-    "buffer_examples.scd.txt",
-    "Welcome.md",
-    "Week 4/2025-10-20.md"
+    "Welcome.md"
   ]
 }
