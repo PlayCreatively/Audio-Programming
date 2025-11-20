@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Notes/Project Proposal.md",
+                "file": "Notes/DX7 alogrithm notes.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Project Proposal"
+              "title": "DX7 alogrithm notes"
             }
           }
         ],
@@ -172,7 +172,15 @@
   },
   "active": "57900a90ce4efc06",
   "lastOpenFiles": [
+    "Pasted image 20251119163139.png",
+    "Pasted image 20251119162845.jpg",
+    "Notes/Documentation Notes.md",
+    "Clippings/dynamic FM synth configuration.md",
+    "Notes/DX7 alogrithm notes.md",
     "Notes/how difficult is it to recreate the DX7.md",
+    "KnobKraft.md",
+    "Clippings",
+    "Notes/Project Proposal.md",
     "Notes",
     "README - Proposal.md",
     "README.txt",
@@ -184,7 +192,6 @@
     "Notes/Week 6/week6start/week6start.scd",
     "Notes/Week 6/week6start",
     "Week 6/week6start.zip",
-    "Notes/Week 6",
     "Notes/Week 4/AUPRO context week 4/Audio Programming workshop 1.md",
     "Notes/Week 4/AUPRO context week 4/AUPRO_week3.md",
     "Notes/Week 4/AUPRO context week 4/AUPRO_week1_slides.md",
