@@ -1,0 +1,177 @@
+{
+  "dx7_parameter_spec": {
+    "meta": {
+      "description": "DX7 Parameter Specification with Real-World Unit Mappings",
+      "engine": "Dexed / Yamaha DX7",
+      "version": "1.0"
+    },
+    "global": {
+      "algorithm": {
+        "label": "Algorithm",
+        "range": [
+          1,
+          32
+        ],
+        "unit": "ID",
+        "scale": "integer",
+        "description": "Selects one of 32 connection structures for the 6 operators."
+      },
+      "feedback": {
+        "label": "Feedback Amount",
+        "range": [
+          0,
+          7
+        ],
+        "unit": "Index",
+        "scale": "linear",
+        "description": "Feedback loop intensity. 0 is Sine, 7 is White Noise."
+      },
+      "transpose": {
+        "label": "Transpose",
+        "range": [
+          -24,
+          24
+        ],
+        "unit": "Semitones",
+        "scale": "linear",
+        "description": "Global pitch shift of +/- 2 octaves."
+      },
+      "lfo_speed": {
+        "label": "LFO Speed",
+        "range": [
+          0.06,
+          50.0
+        ],
+        "unit": "Hz",
+        "scale": "exponential",
+        "description": "Low Frequency Oscillator rate."
+      },
+      "lfo_delay": {
+        "label": "LFO Delay Time",
+        "range": [
+          0.0,
+          3.0
+        ],
+        "unit": "Seconds",
+        "scale": "linear",
+        "description": "Time elapsed before LFO modulation begins after key press."
+      },
+      "pitch_mod_depth": {
+        "label": "Pitch Mod Depth",
+        "range": [
+          0,
+          99
+        ],
+        "unit": "Amount (0-99)",
+        "scale": "linear",
+        "description": "Global vibrato intensity (dependent on PMS)."
+      },
+      "amp_mod_depth": {
+        "label": "Amp Mod Depth",
+        "range": [
+          0,
+          42
+        ],
+        "unit": "dB",
+        "scale": "linear",
+        "description": "Global tremolo intensity. Max depth is approx 42dB."
+      },
+      "pitch_eg_levels": {
+        "label": "Pitch EG Level Offset",
+        "range": [
+          -48,
+          48
+        ],
+        "unit": "Semitones",
+        "scale": "linear",
+        "description": "Pitch envelope offset from center. +/- 4 Octaves."
+      }
+    },
+    "operator": {
+      "output_level": {
+        "label": "Output Volume",
+        "range": [
+          0,
+          1
+        ],
+        "unit": "Normalized Level",
+        "scale": "logarithmic",
+        "description": "0 (Silence) - 1 (Max)."
+      },
+      "frequency_ratio_mode": {
+        "label": "Frequency (Ratio Mode)",
+        "range": [
+          0.5,
+          31.99
+        ],
+        "unit": "Harmonic Ratio",
+        "scale": "linear",
+        "description": "Active when Osc Mode=Ratio. Multiplies fundamental frequency. 1.0=Fundamental, 2.0=Octave."
+      },
+      "frequency_fixed_mode": {
+        "label": "Frequency (Fixed Mode)",
+        "range": [
+          1,
+          9772
+        ],
+        "unit": "Hz",
+        "scale": "logarithmic",
+        "description": "Active when Osc Mode=Fixed. Absolute frequency regardless of key pressed."
+      },
+      "detune": {
+        "label": "Detune",
+        "range": [
+          -20,
+          20
+        ],
+        "unit": "Cents",
+        "scale": "linear",
+        "description": "Approx +/- 2.6 cents per step."
+      },
+      "break_point": {
+        "label": "Break Point Note",
+        "range": [
+          "A-1",
+          "C8"
+        ],
+        "unit": "Note Name",
+        "scale": "chromatic",
+        "description": "Pivot key for keyboard level scaling."
+      },
+      "scale_depth": {
+        "label": "Level Scale Depth",
+        "range": [
+          0,
+          16
+        ],
+        "unit": "dB/Octave",
+        "scale": "approx_exponential",
+        "description": "Steepness of volume change across the keyboard."
+      },
+      "envelope": [
+        {
+          "rate": {
+            "label": "Envelope Rate",
+            "range": [
+              0,
+              99
+            ],
+            "unit": "Amount (0-99)",
+            "scale": "linear",
+            "description": "Speed for each envelope stage."
+          },
+          "level": {
+            "label": "Envelope Level",
+            "range": [
+              0,
+              1
+            ],
+            "unit": "Normalized Level",
+            "scale": "linear",
+            "description": "Level for each envelope stage."
+          }
+        }
+      ]
+    }
+  }
+}

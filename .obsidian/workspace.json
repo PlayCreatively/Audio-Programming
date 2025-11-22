@@ -20,8 +20,21 @@
               "icon": "lucide-file",
               "title": "DX7 alogrithm notes"
             }
+          },
+          {
+            "id": "7317f33f84e01020",
+            "type": "leaf",
+            "state": {
+              "type": "image",
+              "state": {
+                "file": "attachments/Pasted image 20251119162845.jpg"
+              },
+              "icon": "lucide-image",
+              "title": "Pasted image 20251119162845"
+            }
           }
         ],
+        "currentTab": 1,
         "stacked": true
       }
     ],
@@ -170,28 +183,33 @@
       "bases:Create new base": false
     }
   },
-  "active": "57900a90ce4efc06",
+  "active": "7317f33f84e01020",
   "lastOpenFiles": [
+    "Notes/DX7 alogrithm notes.md",
+    "attachments/Pasted image 20251119163139.png",
+    "attachments/Pasted image 20251119162845.jpg",
+    "ranges.json",
+    "ranges.txt",
+    "README - Proposal.md",
+    "ai_studio_code - edit.py",
+    "ai_studio_code copy.py",
+    "output.json",
+    "BRASS.SYX",
+    "ai_studio_code.py",
+    "Notes/Project Proposal.md",
+    "attachments/Pasted image 20251121142335.png",
+    "attachments/Pasted image 20251121142225.png",
+    "attachments/Pasted image 20251121142216.png",
+    "attachments",
     "Pasted image 20251119163139.png",
     "Pasted image 20251119162845.jpg",
     "Notes/Documentation Notes.md",
     "Clippings/dynamic FM synth configuration.md",
-    "Notes/DX7 alogrithm notes.md",
     "Notes/how difficult is it to recreate the DX7.md",
     "KnobKraft.md",
     "Clippings",
-    "Notes/Project Proposal.md",
     "Notes",
-    "README - Proposal.md",
-    "README.txt",
-    "readme.txt",
     "Notes/Week 4/2025-10-20.md",
-    "Notes/Week 6/week6workshop-share/1-aupro-am.scd",
-    "Notes/Week 6/week6workshop-share",
-    "Week 6/week6workshop-share.zip",
-    "Notes/Week 6/week6start/week6start.scd",
-    "Notes/Week 6/week6start",
-    "Week 6/week6start.zip",
     "Notes/Week 4/AUPRO context week 4/Audio Programming workshop 1.md",
     "Notes/Week 4/AUPRO context week 4/AUPRO_week3.md",
     "Notes/Week 4/AUPRO context week 4/AUPRO_week1_slides.md",

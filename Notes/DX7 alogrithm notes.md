@@ -1,3 +1,5 @@
+![[Pasted image 20251121142225.png]]
+![[Pasted image 20251121142335.png]]
 ![[Pasted image 20251119163139.png]]
 
 ![[Pasted image 20251119162845.jpg]]
@@ -6,4 +8,4 @@ according to the diagrams, I can tell that there's only a single feedback (stres
 
 This is only relevant for my project since it will act as the back-end of my other project which requires linear input. Therefore, I need to make every synth-module seamlessly transition-able between each other.
 
-this is important for symmetri or how gemmini 3 corrected me 
+this is important for symmetry or how Gemini 3 corrected me 
