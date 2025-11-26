@@ -293,6 +293,14 @@ def parse_voice_to_spec(voice_data, slot_number):
 
     # --- 1. Parse Global Parameters (Hold off on Matrix generation) ---
     
+    # Voice Name (Bytes 118-127)
+    try:
+        name = voice_data[118:128].decode('ascii', errors='ignore').strip()
+        if not name:
+            return None # Skip unnamed patches (early exit)
+    except:
+        return None
+    
     # Algorithm (Byte 110)
     algoID = voice_data[110] + 1 # 1-32
 
@@ -317,12 +325,6 @@ def parse_voice_to_spec(voice_data, slot_number):
     # Pitch EG Levels (Bytes 106-109)
     peg_levels_raw = [voice_data[106], voice_data[107], voice_data[108], voice_data[109]]
     peg_levels_semitones = [round(map_linear(x, 0, 99, -48, 48), 1) for x in peg_levels_raw]
-
-    # Voice Name
-    try:
-        name = voice_data[118:128].decode('ascii', errors='ignore').strip()
-    except:
-        name = "UNKNOWN"
 
     # --- 2. Parse Operators ---
     operators = []
@@ -390,10 +392,13 @@ def process_syx(input_file, output_file):
             raise ValueError("Valid DX7 data not found.")
 
         bank_output = []
-        for i in range(32):
+        num_patches = len(payload) // 128
+        
+        for i in range(num_patches):
             chunk = payload[i*128 : (i+1)*128]
             parsed = parse_voice_to_spec(chunk, i)
-            bank_output.append(parsed)
+            if parsed is not None:
+                bank_output.append(parsed)
 
         final_json = {
             "meta": {
