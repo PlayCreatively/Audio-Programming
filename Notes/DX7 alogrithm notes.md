@@ -3,6 +3,9 @@
 ![[Pasted image 20251119163139.png]]
 
 ![[Pasted image 20251119162845.jpg]]
+
+# Ground truth
+![[Pasted image 20251124193512.png]]
 # note 1.0
 according to the diagrams, I can tell that there's only a single feedback (stress on the back) in each synth-module AND the feedback only ever feeds back on itself or further back on the same branch; no inter-branch feedback. 
 

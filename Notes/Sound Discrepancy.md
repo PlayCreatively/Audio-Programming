@@ -1,0 +1,2 @@
+- output is not linear, it's db
+- output was set to max envelope volume. Presets are set to go to noise'y hights and then go down to a musical level. So I only heard the noise.

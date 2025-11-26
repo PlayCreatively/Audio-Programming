@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Notes/DX7 alogrithm notes.md",
+                "file": "Notes/Sound Discrepancy.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "DX7 alogrithm notes"
+              "title": "Sound Discrepancy"
             }
           },
           {
@@ -34,7 +34,6 @@
             }
           }
         ],
-        "currentTab": 1,
         "stacked": true
       }
     ],
@@ -183,11 +182,15 @@
       "bases:Create new base": false
     }
   },
-  "active": "7317f33f84e01020",
+  "active": "11306bdb84175479",
   "lastOpenFiles": [
     "Notes/DX7 alogrithm notes.md",
-    "attachments/Pasted image 20251119163139.png",
+    "Notes/Sound Discrepancy.md",
+    "attachments/Pasted image 20251124193512.png",
     "attachments/Pasted image 20251119162845.jpg",
+    "syx_parser_old.py",
+    "syx_parser.py",
+    "attachments/Pasted image 20251119163139.png",
     "ranges.json",
     "ranges.txt",
     "README - Proposal.md",
@@ -207,8 +210,6 @@
     "Clippings/dynamic FM synth configuration.md",
     "Notes/how difficult is it to recreate the DX7.md",
     "KnobKraft.md",
-    "Clippings",
-    "Notes",
     "Notes/Week 4/2025-10-20.md",
     "Notes/Week 4/AUPRO context week 4/Audio Programming workshop 1.md",
     "Notes/Week 4/AUPRO context week 4/AUPRO_week3.md",

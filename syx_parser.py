@@ -2,7 +2,37 @@ import sys
 import json
 import math
 
-def get_dx7_algorithm(algo_index, feedback_val=0.0):
+# --- DX7 CONVERSION HELPERS ---
+
+def dx7_level_to_amp(raw_val):
+    """
+    DX7 Levels (0-99) are exponential.
+    ~ -0.75dB per step. 
+    Returns: 0.0 to 1.0
+    """
+    if raw_val == 0: return 0.0
+    # Formula: 2 ^ ((val - 99) / 8)
+    # 99 -> 1.0, 91 -> 0.5, etc.
+    return 2.0 ** ((raw_val - 99.0) / 8.0)
+
+def dx7_rate_to_duration(raw_val):
+    """
+    DX7 Rates (0-99) to Seconds.
+    This is a rough approximation of the DX7 lookup table.
+    99 = Instant (~0ms)
+    0 = Infinite (~forever)
+    Typical fast attack (R=70) is ~50ms.
+    """
+    if raw_val >= 99: return 0.0
+    if raw_val == 0: return 99.0 # Effectively infinite for envelopes
+    
+    # Heuristic formula to match the exponential curve of DX7 timing
+    # T = 20 * (0.3 ^ (R / 10)) roughly matches behavior
+    # Alternatively: SuperCollider Env uses time, DX7 uses Rate.
+    # Let's use a nice fit:
+    return 14.0 * (0.5 ** (raw_val / 6.0))
+
+def get_dx7_algorithm(algo_index, feedback_val=0.0, out_level=[1.0]*6):
     """
     Returns the connection matrix and output mixer for a specific DX7 algorithm.
 
@@ -84,7 +114,7 @@ def get_dx7_algorithm(algo_index, feedback_val=0.0):
         # Op 6 (top) -> Index 5
         r = dst - 1
         c = src - 1
-        matrix[r][c] = 1.0
+        matrix[r][c] = out_level[c]  # Standard modulation amount
 
     # 2. Apply Feedback
     # Feedback connects the operator to itself
@@ -181,7 +211,32 @@ def parse_operator(ops_data, op_num):
 
     # 4. Output Level (Byte 14)
     out_lvl_raw = ops_data[14]
-    out_lvl_norm = map_linear(out_lvl_raw, 0, 99, 0.0, 1.0)
+    
+    # Convert to Linear Amplitude (0.0 to 1.0)
+    amp_linear = dx7_level_to_amp(out_lvl_raw)
+    
+    # Convert to Modulation Index (Radians) for the Matrix
+    # Max DX7 mod index is approx 4*PI (~12.57)
+    # This is what goes into the Wiring Matrix.
+    out_lvl_radians = round(amp_linear * 12.57, 4)
+
+    # --- 2. Envelopes (Rates & Levels) ---
+    envelope = []
+    
+    # The DX7 Envelope has 4 segments.
+    # Bytes 0-3 = Rates (R1, R2, R3, R4)
+    # Bytes 4-7 = Levels (L1, L2, L3, L4)
+    for i in range(4):
+        rate_raw = ops_data[i]
+        level_raw = ops_data[4+i]
+        
+        envelope.append({
+            "stage": i + 1,
+            # Rate -> Seconds
+            "rate": round(dx7_rate_to_duration(rate_raw), 4),
+            # Level -> 0.0 to 1.0 (Relative to Output Level)
+            "level": round(dx7_level_to_amp(level_raw), 4)
+        })
     
     # 5. Frequency (Bytes 15 & 16)
     mode_byte = ops_data[15]
@@ -224,7 +279,7 @@ def parse_operator(ops_data, op_num):
 
     return {
         "id": op_num,
-        "output_level": round(out_lvl_norm, 3),
+        "output_level": out_lvl_radians,
         "frequency_ratio_mode": ratio_val,
         "frequency_fixed_mode": fixed_val,
         "detune": round(detune_cents, 1),
@@ -236,15 +291,13 @@ def parse_operator(ops_data, op_num):
 def parse_voice_to_spec(voice_data, slot_number):
     if len(voice_data) != 128: return None
 
-    # --- Parse Global Parameters ---
+    # --- 1. Parse Global Parameters (Hold off on Matrix generation) ---
     
     # Algorithm (Byte 110)
     algoID = voice_data[110] + 1 # 1-32
 
     # Feedback (Byte 111 bits 0-2)
     fb = voice_data[111] & 0x07 # 0-7
-
-    algo, mixer = get_dx7_algorithm(algoID, fb)
 
     # LFO (Bytes 112-115)
     lfo_speed_raw = voice_data[112]
@@ -253,25 +306,15 @@ def parse_voice_to_spec(voice_data, slot_number):
     lfo_am_raw = voice_data[115]
 
     # Map LFO Real Units
-    # Speed: 0-99 -> 0.06Hz - 50.0Hz (Exponential)
     lfo_speed_hz = map_exponential(lfo_speed_raw, 0, 99, 0.06, 50.0)
-    
-    # Delay: 0-99 -> 0.0s - 3.0s (Linear)
     lfo_delay_sec = map_linear(lfo_delay_raw, 0, 99, 0.0, 3.0)
-    
-    # AM Depth: 0-99 -> 0dB - 42dB (Linear)
     lfo_am_db = map_linear(lfo_am_raw, 0, 99, 0.0, 42.0)
 
     # Transpose (Byte 117)
-    # Raw 0-48 -> -24 to +24
     trans_raw = voice_data[117]
     transpose = trans_raw - 24
 
     # Pitch EG Levels (Bytes 106-109)
-    # Just taking average or max? Usually "Pitch EG Level" in UI implies the range.
-    # Spec asks for "pitch_eg_levels" range -48 to 48. 
-    # The spec is slightly ambiguous if it wants the ARRAY or a single value. 
-    # Assuming it wants the array of converted levels.
     peg_levels_raw = [voice_data[106], voice_data[107], voice_data[108], voice_data[109]]
     peg_levels_semitones = [round(map_linear(x, 0, 99, -48, 48), 1) for x in peg_levels_raw]
 
@@ -281,27 +324,43 @@ def parse_voice_to_spec(voice_data, slot_number):
     except:
         name = "UNKNOWN"
 
-    # --- Parse Operators ---
+    # --- 2. Parse Operators ---
     operators = []
     # Op 6 is at offset 0, Op 1 at offset 85
+    # The loop runs 6, 5, 4, 3, 2, 1
     for op_num in range(6, 0, -1):
         offset = (6 - op_num) * 17
         op_chunk = voice_data[offset : offset + 17]
+        # parse_operator calculates 'output_level' (real units) and puts it in the dict
         operators.append(parse_operator(op_chunk, op_num))
 
-    # Construct Final Object
+    # --- 3. Collect Output Levels for Matrix ---
+    # The 'operators' list is currently order [Op6, Op5, ... Op1].
+    # get_dx7_algorithm expects a list indexable by (OpID - 1), i.e., [Op1, Op2 ... Op6]
+    
+    # Sort by ID to ensure correct order (1 to 6)
+    sorted_ops = sorted(operators, key=lambda x: x['id'])
+    
+    # Extract the pre-calculated real levels
+    op_levels_ordered = [op['output_level'] for op in sorted_ops]
+
+    # --- 4. Generate Matrix ---
+    # NOW we have everything needed to call the function
+    algo_matrix, mixer = get_dx7_algorithm(algoID, fb, op_levels_ordered)
+
+    # --- 5. Construct Final Object ---
     return {
         "identity": {
             "name": name,
             "slot": slot_number + 1
         },
         "global": {
-            "algorithm_matrix": algo,
+            "algorithm_matrix": algo_matrix,
             "output_mixer": mixer,
             "transpose": transpose,
             "lfo_speed": round(lfo_speed_hz, 3),
             "lfo_delay": round(lfo_delay_sec, 2),
-            "pitch_mod_depth": lfo_pm_raw, # Pass-through 0-99
+            "pitch_mod_depth": lfo_pm_raw, 
             "amp_mod_depth": round(lfo_am_db, 1),
             "pitch_eg_levels": peg_levels_semitones
         },
