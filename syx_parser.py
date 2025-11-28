@@ -1,6 +1,7 @@
 import sys
 import json
 import math
+import re
 
 # --- DX7 CONVERSION HELPERS ---
 
@@ -24,15 +25,18 @@ def dx7_rate_to_duration(raw_val):
     Typical fast attack (R=70) is ~50ms.
     """
     if raw_val >= 99: return 0.0
-    if raw_val == 0: return 99.0 # Effectively infinite for envelopes
+    if raw_val == 0: return sys.float_info.max  # Effectively infinite for envelopes
+    
+    longest_time = 14.0 # seconds for R=0
     
     # Heuristic formula to match the exponential curve of DX7 timing
-    # T = 20 * (0.3 ^ (R / 10)) roughly matches behavior
-    # Alternatively: SuperCollider Env uses time, DX7 uses Rate.
-    # Let's use a nice fit:
-    return 14.0 * (0.5 ** (raw_val / 6.0))
+    # T = 14 * (0.5 ^ (R / 6.0)) roughly matches behavior
+    # The power function returns a value between 0.0 and 1.0.
+    # We multiply by 14.0 to scale this to real-world seconds.
+    # Without this, the longest possible envelope stage would be only 1 second.
+    return longest_time * (0.5 ** (raw_val / 6.0))
 
-def get_dx7_algorithm(algo_index, feedback_val=0.0, out_level=[1.0]*6):
+def get_dx7_algorithm(algo_index, feedback_index=0.0, out_level=[1.0]*6):
     """
     Returns the connection matrix and output mixer for a specific DX7 algorithm.
 
@@ -62,40 +66,39 @@ def get_dx7_algorithm(algo_index, feedback_val=0.0, out_level=[1.0]*6):
     # 1 is usually the bottom-most operator in charts.
     
     algos = {
-        1:  {"conns": [(6,5), (5,4), (4,3), (2,1)], "outs": [1, 3], "fb": 6},
-        2:  {"conns": [(6,5), (5,4), (4,3), (2,1)], "outs": [1, 3], "fb": 2},
-        3:  {"conns": [(6,5), (5,4), (3,2), (2,1)], "outs": [1, 4], "fb": 6},
-        4:  {"conns": [(6,5), (5,4), (3,2), (2,1)], "outs": [1, 4], "fb": 4},
-        5:  {"conns": [(6,5), (5,4), (3,2), (2,1)], "outs": [1, 4], "fb": 2},
-        6:  {"conns": [(6,5), (5,4), (3,2), (2,1)], "outs": [1, 4], "fb": 5},
-        7:  {"conns": [(6,5), (4,3), (3,1), (2,1)], "outs": [1, 5], "fb": 6},
-        8:  {"conns": [(6,5), (4,3), (3,1), (2,1)], "outs": [1, 5], "fb": 4},
-        9:  {"conns": [(6,5), (4,3), (3,1), (2,1)], "outs": [1, 5], "fb": 2},
-        10: {"conns": [(6,5), (3,2), (2,1), (4,1)], "outs": [1, 5], "fb": 3},
-        11: {"conns": [(6,5), (3,2), (2,1), (4,1)], "outs": [1, 5], "fb": 6},
-        12: {"conns": [(6,5), (4,3), (3,2), (2,1)], "outs": [1],    "fb": 2},
-        13: {"conns": [(6,5), (4,3), (3,2), (2,1)], "outs": [1],    "fb": 6},
-        14: {"conns": [(6,5), (5,4), (4,2), (3,2), (2,1)], "outs": [1], "fb": 6},
-        15: {"conns": [(6,5), (5,4), (4,2), (3,2), (2,1)], "outs": [1], "fb": 2},
-        16: {"conns": [(6,1), (5,1), (4,1), (3,2), (2,1)], "outs": [1], "fb": 6},
-        17: {"conns": [(6,1), (5,1), (4,1), (3,2), (2,1)], "outs": [1], "fb": 2},
-        18: {"conns": [(6,5), (5,4), (4,3), (3,1), (2,1)], "outs": [1], "fb": 3},
-        19: {"conns": [(6,5), (4,5), (5,1), (3,2), (2,1)], "outs": [1], "fb": 6},
-        20: {"conns": [(6,5), (5,1), (4,1), (3,2), (2,1)], "outs": [1], "fb": 3},
-        21: {"conns": [(6,5), (5,1), (4,1), (3,2), (2,1)], "outs": [1], "fb": 6},
-        22: {"conns": [(6,5), (5,1), (4,1), (3,1), (2,1)], "outs": [1], "fb": 6},
-        23: {"conns": [(6,5), (5,1), (4,1), (3,1), (2,1)], "outs": [1], "fb": 3},
-        24: {"conns": [(6,5), (5,4), (4,3), (3,1), (2,1)], "outs": [1], "fb": 6},
-        25: {"conns": [(6,5), (5,4), (4,1), (3,1), (2,1)], "outs": [1], "fb": 6},
-        26: {"conns": [(6,5), (5,4), (4,1), (3,1), (2,1)], "outs": [1], "fb": 4},
-        27: {"conns": [(6,5), (5,1), (4,1), (3,1), (2,1)], "outs": [1], "fb": 3},
-        28: {"conns": [(6,5), (5,4), (4,1), (3,2), (2,1)], "outs": [1], "fb": 5}, # Odd one: 3->2->1 and 6->5->4->1
-        29: {"conns": [(6,5), (5,1), (4,1), (3,1), (2,1)], "outs": [1], "fb": 6},
-        30: {"conns": [(6,5), (5,1), (4,3), (3,1), (2,1)], "outs": [1], "fb": 4},
-        31: {"conns": [(6,1), (5,1), (4,1), (3,1), (2,1)], "outs": [1], "fb": 6},
-        32: {"conns": [(6,1), (5,1), (4,1), (3,1), (2,1)], "outs": [1, 2, 3, 4, 5, 6], "fb": 6} 
-        # Note: 32 is typically all carriers, though spec varies on if they modulate anything. 
-        # Usually 32 is just 6 distinct parallel ops.
+        1:  {"conns": [(6,5), (5,4), (4,3), (2,1)], "outs": [1, 3], "fb": (6,6)},
+        2:  {"conns": [(6,5), (5,4), (4,3), (2,1)], "outs": [1, 3], "fb": (2,2)},
+        3:  {"conns": [(6,5), (5,4), (3,2), (2,1)], "outs": [1, 4], "fb": (6,6)},
+        4:  {"conns": [(6,5), (5,4), (3,2), (2,1)], "outs": [1, 4], "fb": (4,6)},
+        5:  {"conns": [(6,5), (4,3), (2,1)], "outs": [1, 3, 5], "fb": (6,6)},
+        6:  {"conns": [(6,5), (4,3), (2,1)], "outs": [1, 3, 5], "fb": (5,6)},
+        7:  {"conns": [(6,5), (5,3), (4,3), (2,1)], "outs": [1, 3], "fb": (6,6)},
+        8:  {"conns": [(6,5), (5,3), (4,3), (2,1)], "outs": [1, 3], "fb": (4,4)},
+        9:  {"conns": [(6,5), (5,3), (4,3), (2,1)], "outs": [1, 3], "fb": (2,2)},
+        10: {"conns": [(3,2), (2,1), (6,4), (5,4)], "outs": [4, 1], "fb": (3,3)},
+        11: {"conns": [(3,2), (2,1), (6,4), (5,4)], "outs": [4, 1], "fb": (6,6)},
+        12: {"conns": [(2,1), (6,3), (5,3), (4,3)], "outs": [3, 1], "fb": (2,2)},
+        13: {"conns": [(2,1), (6,3), (5,3), (4,3)], "outs": [3, 1], "fb": (6,6)},
+        14: {"conns": [(6,4), (4,3), (5,4), (2,1)], "outs": [1, 3], "fb": (6,6)},
+        15: {"conns": [(6,4), (4,3), (5,4), (2,1)], "outs": [1, 3], "fb": (2,2)},
+        16: {"conns": [(6,5), (5,1), (4,3), (3,1), (2,1)], "outs": [1], "fb": (6,6)},
+        17: {"conns": [(6,5), (5,1), (4,3), (3,1), (2,1)], "outs": [1], "fb": (2,2)},
+        18: {"conns": [(6,5), (5,4), (4,1), (3,1), (2,1)], "outs": [1], "fb": (3,3)},
+        19: {"conns": [(6,5), (6,4), (3,2), (2,1)], "outs": [1, 4, 5], "fb": (6,6)},
+        20: {"conns": [(6,4), (5,4), (3,2), (3,1)], "outs": [1, 2, 4], "fb": (3,3)},
+        21: {"conns": [(6,5), (6,4), (3,2), (3,1)], "outs": [1, 2, 4, 5], "fb": (3,3)},
+        22: {"conns": [(6,5), (6,4), (6,3), (2,1)], "outs": [1, 3, 4, 5], "fb": (6,6)},
+        23: {"conns": [(6,5), (6,4), (3,2)], "outs": [1, 2, 4, 5], "fb": (6,6)},
+        24: {"conns": [(6,5), (6,4), (6,3)], "outs": [1, 2, 3, 4, 5], "fb": (6,6)},
+        25: {"conns": [(6,5), (6,4)], "outs": [1, 2, 3, 4, 5], "fb": (6,6)},
+        26: {"conns": [(6,4), (5,4), (3,2)], "outs": [1, 2, 4], "fb": (6,6)},
+        27: {"conns": [(6,4), (5,4), (3,2)], "outs": [1, 2, 4], "fb": (3,3)},
+        28: {"conns": [(5,4), (4,3), (2,1)], "outs": [1, 3, 6], "fb": (5,5)},
+        29: {"conns": [(6,5), (4,3)], "outs": [1, 2, 3, 5], "fb": (6,6)},
+        30: {"conns": [(5,4), (4,3)], "outs": [1, 2, 3, 6], "fb": (5,5)},
+        31: {"conns": [(6,5)], "outs": [1, 2, 3, 4, 5], "fb": (6,6)},
+        32: {"conns": [], "outs": [1, 2, 3, 4, 5, 6], "fb": (6,6)} 
+        # 32 is just 6 distinct parallel ops.
     }
 
     spec = algos[algo_index]
@@ -118,8 +121,14 @@ def get_dx7_algorithm(algo_index, feedback_val=0.0, out_level=[1.0]*6):
 
     # 2. Apply Feedback
     # Feedback connects the operator to itself
-    fb_idx = spec["fb"] - 1
-    matrix[fb_idx][fb_idx] = float(feedback_val)
+    
+    # This maps the integer 0-7 knob to the exponential 0.0 -> 4.0 gain
+    feedback_val = pow(2, feedback_index - 5) if feedback_index > 0 else 0
+    
+    fb_src, fb_dst = spec["fb"]
+    fb_src -= 1
+    fb_dst -= 1
+    matrix[fb_dst][fb_src] = float(feedback_val)
 
     # 3. Flatten Matrix for SuperCollider
     # SC expects a single array of 36 elements
@@ -186,30 +195,19 @@ def parse_operator(ops_data, op_num):
     # 11: Curves (Packed), 12: Detune/RS (Packed)
     # 13: KVS/AMS (Packed), 14: Output Level
     # 15: Mode/Coarse (Packed), 16: Fine
-    
-    # 1. Envelope
-    envelope = []
-    for i in range(4):
-        rate_raw = ops_data[i]
-        level_raw = ops_data[4+i]
-        envelope.append({
-            "stage": i + 1,
-            "rate": rate_raw, # Keeping raw 0-99 as per spec "Amount"
-            "level": round(map_linear(level_raw, 0, 99, 0.0, 1.0), 4)
-        })
 
-    # 2. Scaling & Curves (Byte 11)
+    # Scaling & Curves (Byte 11)
     scale_byte = ops_data[11]
     # Not requested in simplified spec, but used for internal logic if needed
     
-    # 3. Detune (Byte 12) - Bits 3-6
+    # Detune (Byte 12) - Bits 3-6
     det_rs_byte = ops_data[12]
     detune_raw = (det_rs_byte >> 3) & 0x0F # 0-14
     # Map 0-14 (Center 7) -> -7 to +7 -> Spec -20 to +20 Cents
     detune_centered = detune_raw - 7
     detune_cents = map_linear(detune_centered, -7, 7, -20, 20)
 
-    # 4. Output Level (Byte 14)
+    # Output Level (Byte 14)
     out_lvl_raw = ops_data[14]
     
     # Convert to Linear Amplitude (0.0 to 1.0)
@@ -218,9 +216,9 @@ def parse_operator(ops_data, op_num):
     # Convert to Modulation Index (Radians) for the Matrix
     # Max DX7 mod index is approx 4*PI (~12.57)
     # This is what goes into the Wiring Matrix.
-    out_lvl_radians = round(amp_linear * 12.57, 4)
+    out_lvl_radians = round(amp_linear * 4 * math.pi, 4)
 
-    # --- 2. Envelopes (Rates & Levels) ---
+    # Envelopes (Rates & Levels)
     envelope = []
     
     # The DX7 Envelope has 4 segments.
@@ -238,7 +236,7 @@ def parse_operator(ops_data, op_num):
             "level": round(dx7_level_to_amp(level_raw), 4)
         })
     
-    # 5. Frequency (Bytes 15 & 16)
+    # Frequency (Bytes 15 & 16)
     mode_byte = ops_data[15]
     mode_fixed = bool(mode_byte & 1)
     coarse = (mode_byte >> 1) & 0x1F
@@ -264,11 +262,11 @@ def parse_operator(ops_data, op_num):
         hz_calc = (10 ** c_val) * (1.0 + (fine / 10.0))
         fixed_val = round(hz_calc, 2)
 
-    # 6. Break Point (Byte 8)
+    # Break Point (Byte 8)
     bp_raw = ops_data[8]
     bp_note = get_note_name(bp_raw)
 
-    # 7. Scale Depth (Byte 9 & 10 usually Left/Right)
+    # Scale Depth (Byte 9 & 10 usually Left/Right)
     # Spec asks for "Scale Depth" 0-16dB. 
     # DX7 has separate L and R depths. We'll take the MAX of both to represent "Depth"
     # or just average. Let's take the max as the effective depth.
@@ -409,8 +407,38 @@ def process_syx(input_file, output_file):
             "patches": bank_output
         }
 
+        # Generate JSON string
+        json_output = json.dumps(final_json, indent=2)
+
+        # --- Custom Formatting for 6x6 Matrix ---
+        def format_matrix_grid(match):
+            # Extract the inner content of the list (numbers and newlines)
+            content = match.group(1)
+            # Clean up and split into individual values
+            values = [x.strip() for x in content.split(',') if x.strip()]
+            
+            # Safety check: only format if we have exactly 36 elements
+            if len(values) != 36:
+                return match.group(0)
+            
+            # Create 6 rows of 6 values
+            rows = []
+            for i in range(6):
+                row_slice = values[i*6 : (i+1)*6]
+                rows.append(", ".join(row_slice))
+            
+            # Reconstruct the block with proper indentation
+            # Assuming standard indent=2 depth for "algorithm_matrix"
+            # We align the rows for readability
+            joined_rows = ",\n            ".join(rows)
+            return f'"algorithm_matrix": [\n            {joined_rows}\n          ]'
+
+        # Regex to find "algorithm_matrix": [ ... ] blocks
+        # Matches the key and the bracketed content non-greedily
+        json_output = re.sub(r'"algorithm_matrix": \[([\s\S]*?)\]', format_matrix_grid, json_output)
+
         with open(output_file, 'w') as f:
-            json.dump(final_json, f, indent=2)
+            f.write(json_output)
         
         print(f"Success: Exported {len(bank_output)} patches to {output_file}")
 
