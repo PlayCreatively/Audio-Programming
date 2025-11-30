@@ -25,7 +25,7 @@ def dx7_rate_to_duration(raw_val):
     Typical fast attack (R=70) is ~50ms.
     """
     if raw_val >= 99: return 0.0
-    if raw_val == 0: return sys.float_info.max  # Effectively infinite for envelopes
+    if raw_val == 0: return 99  # Effectively infinite for envelopes
     
     longest_time = 14.0 # seconds for R=0
     
@@ -36,7 +36,7 @@ def dx7_rate_to_duration(raw_val):
     # Without this, the longest possible envelope stage would be only 1 second.
     return longest_time * (0.5 ** (raw_val / 6.0))
 
-def get_dx7_algorithm(algo_index, feedback_index=0.0, out_level=[1.0]*6):
+def get_dx7_algorithm(algo_index, feedback_int=0.0, out_level=[1.0]*6):
     """
     Returns the connection matrix and output mixer for a specific DX7 algorithm.
 
@@ -123,7 +123,7 @@ def get_dx7_algorithm(algo_index, feedback_index=0.0, out_level=[1.0]*6):
     # Feedback connects the operator to itself
     
     # This maps the integer 0-7 knob to the exponential 0.0 -> 4.0 gain
-    feedback_val = pow(2, feedback_index - 5) if feedback_index > 0 else 0
+    feedback_val = pow(2, feedback_int - 5) if feedback_int > 0 else 0
     
     fb_src, fb_dst = spec["fb"]
     fb_src -= 1
@@ -140,10 +140,6 @@ def get_dx7_algorithm(algo_index, feedback_index=0.0, out_level=[1.0]*6):
     out_mixer = [0.0] * 6
     for out_op in spec["outs"]:
         out_mixer[out_op - 1] = 1.0
-        
-    # Special fix for Algo 32 if logic dictates (Usually all are out)
-    if algo_index == 32:
-        out_mixer = [1.0] * 6
 
     return flat_matrix, out_mixer
 
@@ -171,19 +167,6 @@ def map_exponential(value, raw_min, raw_max, target_min, target_max):
     except:
         return target_min
 
-def get_note_name(raw_val):
-    """
-    DX7 Breakpoint 0-99. 
-    0 = A-1 (MIDI 21), 99 = C8 (MIDI 120).
-    """
-    midi_note = raw_val + 21
-    note_names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
-    octave = (midi_note // 12) - 2 # Yamaha standard: C3 = 60. So 0 (C-2) is 0.
-    # Adjusting to match A-1 at 21:
-    # 21 // 12 = 1. 1 - 2 = -1. Correct.
-    name = note_names[midi_note % 12]
-    return f"{name}{octave}"
-
 def parse_operator(ops_data, op_num):
     """
     Parses 17 bytes of operator data into the Spec structure.
@@ -198,8 +181,7 @@ def parse_operator(ops_data, op_num):
 
     # Scaling & Curves (Byte 11)
     scale_byte = ops_data[11]
-    # Not requested in simplified spec, but used for internal logic if needed
-    
+        
     # Detune (Byte 12) - Bits 3-6
     det_rs_byte = ops_data[12]
     detune_raw = (det_rs_byte >> 3) & 0x0F # 0-14
@@ -262,27 +244,12 @@ def parse_operator(ops_data, op_num):
         hz_calc = (10 ** c_val) * (1.0 + (fine / 10.0))
         fixed_val = round(hz_calc, 2)
 
-    # Break Point (Byte 8)
-    bp_raw = ops_data[8]
-    bp_note = get_note_name(bp_raw)
-
-    # Scale Depth (Byte 9 & 10 usually Left/Right)
-    # Spec asks for "Scale Depth" 0-16dB. 
-    # DX7 has separate L and R depths. We'll take the MAX of both to represent "Depth"
-    # or just average. Let's take the max as the effective depth.
-    l_depth = ops_data[9]
-    r_depth = ops_data[10]
-    max_depth_raw = max(l_depth, r_depth)
-    scale_depth_db = round(map_linear(max_depth_raw, 0, 99, 0.0, 16.0), 2)
-
     return {
         "id": op_num,
         "output_level": out_lvl_radians,
         "frequency_ratio_mode": ratio_val,
         "frequency_fixed_mode": fixed_val,
         "detune": round(detune_cents, 1),
-        "break_point": bp_note,
-        "scale_depth": scale_depth_db,
         "envelope": envelope
     }
 
@@ -343,6 +310,9 @@ def parse_voice_to_spec(voice_data, slot_number):
     
     # Extract the pre-calculated real levels
     op_levels_ordered = [op['output_level'] for op in sorted_ops]
+    # Remove 'output_level' from operator dicts as it's now in the matrix
+    for op in operators:
+        del op['output_level']
 
     # --- 4. Generate Matrix ---
     # NOW we have everything needed to call the function

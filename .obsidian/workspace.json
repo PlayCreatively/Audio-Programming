@@ -22,6 +22,18 @@
             }
           },
           {
+            "id": "1cd26e0a265fa326",
+            "type": "leaf",
+            "state": {
+              "type": "image",
+              "state": {
+                "file": "attachments/Pasted image 20251119162845.jpg"
+              },
+              "icon": "lucide-image",
+              "title": "Pasted image 20251119162845"
+            }
+          },
+          {
             "id": "7317f33f84e01020",
             "type": "leaf",
             "state": {
@@ -34,6 +46,7 @@
             }
           }
         ],
+        "currentTab": 1,
         "stacked": true
       }
     ],
@@ -182,28 +195,29 @@
       "bases:Create new base": false
     }
   },
-  "active": "11306bdb84175479",
+  "active": "57900a90ce4efc06",
   "lastOpenFiles": [
-    "Notes/DX7 alogrithm notes.md",
-    "Notes/Sound Discrepancy.md",
+    "project.scd",
+    "project.txt",
+    "DX7_0628.SYX",
+    "YAMAHA.SYX",
+    "attachments/Pasted image 20251119163139.png",
+    "attachments/Pasted image 20251121142216.png",
+    "attachments/Pasted image 20251121142225.png",
+    "attachments/Pasted image 20251121142335.png",
     "attachments/Pasted image 20251124193512.png",
+    "Notes/Sound Discrepancy.md",
     "attachments/Pasted image 20251119162845.jpg",
+    "Notes/DX7 alogrithm notes.md",
     "syx_parser_old.py",
     "syx_parser.py",
-    "attachments/Pasted image 20251119163139.png",
     "ranges.json",
     "ranges.txt",
     "README - Proposal.md",
     "ai_studio_code - edit.py",
     "ai_studio_code copy.py",
     "output.json",
-    "BRASS.SYX",
-    "ai_studio_code.py",
     "Notes/Project Proposal.md",
-    "attachments/Pasted image 20251121142335.png",
-    "attachments/Pasted image 20251121142225.png",
-    "attachments/Pasted image 20251121142216.png",
-    "attachments",
     "Pasted image 20251119163139.png",
     "Pasted image 20251119162845.jpg",
     "Notes/Documentation Notes.md",

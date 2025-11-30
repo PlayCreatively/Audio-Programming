@@ -1,4 +1,9 @@
 (
+s.options.blockSize = 1; // Default is 64
+s.reboot;
+)
+
+(
 SynthDef(\subSynth, { | baseFreq = 220, gate = 1 |
 	var opCount = 6;
 
@@ -17,24 +22,24 @@ SynthDef(\subSynth, { | baseFreq = 220, gate = 1 |
 
     // --- HELPER: Create Envelope for Operator i ---
     var makeOpEnv = { |opIndex|
-        var start = opIndex * 4;
-        // Slice the flat arrays
-        var levels = opEnvLevels[start .. start+3]; // [L1, L2, L3, L4]
-        var times  = opEnvTimes[start .. start+3];  // [R1, R2, R3, R4]
+    var start = opIndex * 4;
+    // Slice the flat arrays
+    var levels = opEnvLevels[start .. start+3]; // [L1, L2, L3, L4]
+    var times  = opEnvTimes[start .. start+3];  // [R1, R2, R3, R4]
 
-        // DX7 Topology:
-        // Start at L4 (usually 0, but can be non-zero).
-        // Time1 -> L1
-        // Time2 -> L2
-        // Time3 -> L3 (SUSTAIN POINT)
-        // Time4 -> L4 (Release Phase)
+    // DX7 Topology:
+    // Start at L4 (usually 0, but can be non-zero).
+    // Time1 -> L1
+    // Time2 -> L2
+    // Time3 -> L3 (SUSTAIN POINT)
+    // Time4 -> L4 (Release Phase)
 
-        EnvGen.ar(
-            Env(
-                [levels[3], levels[0], levels[1], levels[2], levels[3]], // Points
-                [times[0], times[1], times[2], times[3]], // Durations
-                -4, // Curve type (DX7 is roughly exp/linear mix, exp sounds better)
-                3 // Release Node: Index 3 corresponds to 'levels[2]' (L3) in the levels array above
+    EnvGen.ar(
+		Env(
+            [levels[3], levels[0], levels[1], levels[2], levels[3]], // Points
+            [times[0], times[1], times[2], times[3]], // Durations
+            -4, // Curve type (DX7 is roughly exp/linear mix, exp sounds better)
+            3 // Release Node: Index 3 corresponds to 'levels[2]' (L3) in the levels array above
             ),
             gate
         )
@@ -87,8 +92,6 @@ SynthDef(\subSynth, { | baseFreq = 220, gate = 1 |
 
 	LocalOut.ar(newOpCtrlOutBank);
 
-    // Main Output (Detects Release)
-	DetectSilence.ar(opOut, doneAction: 0);
 	Out.ar(0, opOut !2);
 
 }).add;
