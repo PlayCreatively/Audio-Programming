@@ -3,6 +3,17 @@ import json
 import math
 import re
 
+# Expected OSC payload ordering for SuperCollider (/update_synth):
+# ["opWiringMatrix", 36 floats, "opOutMixer", 6 floats, "opRatios", 6 floats,
+#  "envLevels", 24 floats, "envTimes", 24 floats]
+OSC_PAYLOAD_FIELDS = [
+    "opWiringMatrix",
+    "opOutMixer",
+    "opRatios",
+    "envLevels",
+    "envTimes",
+]
+
 # --- DX7 CONVERSION HELPERS ---
 
 def dx7_level_to_amp(raw_val):

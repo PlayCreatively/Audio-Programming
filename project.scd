@@ -124,45 +124,56 @@ OSCdef(\gateListener, { |msg|
 
 
 OSCdef(\pyListener, { |msg|
-	// msg[0] is address path
-	// msg[1] is "opWiringMatrix" string (we can skip if we know order)
-	// format from python: ["/update_synth", "opWiringMatrix", val1..36, "opOutMixer", val1..6, ...]
+        // msg[0] is address path
+        // msg payload (from Python) is expected to be:
+        // ["/update_synth", "opWiringMatrix", 36 floats, "opOutMixer", 6 floats,
+        //  "opRatios", 6 floats, "envLevels", 24 floats, "envTimes", 24 floats]
 
-	// We have to carefully pick indices because *wiring_matrix unpacked the array.
-	// Structure:
-	// msg[1] = "opWiringMatrix"
-	// msg[2..37] = 36 floats (Matrix)
-	// msg[38] = "opOutMixer"
-	// msg[39..44] = 6 floats (Mixer)
-	// msg[45] = "opRatios"
-	// msg[46..51] = 6 floats (Ratios)
-	// msg[52] = "opEnvs"
-	// msg[53..58] = 6 floats (Envs/Levels)
+        var grabSection = { |label, count|
+            var start = msg.indexOf(label);
+            if(start.isNil) {
+                ("OSC section '" ++ label ++ "' not found").warn;
+                []
+            } {
+                msg.copyRange(start + 1, start + count)
+            }
+        };
 
-	var matrix = msg[2..37];
-	var mixer  = msg[39..44];
-	var ratios = msg[46..51];
-	var envLevels = msg[53..76];
-    var envTimes = msg[79..102];
+        var matrix = grabSection.("opWiringMatrix", 36);
+        var mixer  = grabSection.("opOutMixer", 6);
+        var ratios = grabSection.("opRatios", 6);
+        var envLevels = grabSection.("envLevels", 24);
+        var envTimes  = grabSection.("envTimes", 24);
 
-	~mySynth.set(
-		\opWiringMatrix, matrix,
-		\opOutMixer, mixer,
-		\opRatios, ratios,
-		\opEnvLevels, envLevels,
+        // Ensure contiguous 24-value envelopes (6 ops * 4 stages)
+        envLevels = envLevels.asArray.keep(24);
+        envLevels = envLevels ++ Array.fill((24 - envLevels.size).max(0), 0);
+
+        envTimes = envTimes.asArray.keep(24);
+        envTimes = envTimes ++ Array.fill((24 - envTimes.size).max(0), 1);
+
+        // Debug logging to verify payload lengths
+        ("opEnvLevels length: " ++ envLevels.size).postln;
+        ("opEnvTimes length: " ++ envTimes.size).postln;
+
+        ~mySynth.set(
+                \opWiringMatrix, matrix,
+                \opOutMixer, mixer,
+                \opRatios, ratios,
+                \opEnvLevels, envLevels,
         \opEnvTimes, envTimes
-	);
+        );
 
-	matrix[0..5].postln;
-	matrix[6..11].postln;
+        matrix[0..5].postln;
+        matrix[6..11].postln;
     matrix[12..17].postln;
     matrix[18..23].postln;
     matrix[24..29].postln;
     matrix[30..35].postln;
-	"".postln;
+        "".postln;
 
-	envLevels.postln;
-	envTimes.postln;
+        envLevels.postln;
+        envTimes.postln;
 
 }, "/update_synth");
 )
