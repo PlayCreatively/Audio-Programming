@@ -514,6 +514,7 @@ If I had more time I might have aborted the multi-algorithm setup and gone for a
 - Grant Sanderson. (24, December 24). _But what is a Fourier series? | Chapter I, Essence of calculus_ [Video]. YouTube. [https://youtu.be/IQqtsm-bBRU?t=649](https://youtu.be/IQqtsm-bBRU?t=649)
 
 **Blog and articles**  
+- Colbert, P. (1983, November). _Yamaha DX7_. _Muzines_.[https://www.muzines.co.uk/articles/yamaha-dx7/4733](https://www.muzines.co.uk/articles/yamaha-dx7/4733)
 - Dent, J. (2019, October 21). _Yamaha DX7 algorithms_. DJ Jondent’s Blog. [https://djjondent.blogspot.com/2019/10/yamaha-dx7-algorithms.html](https://djjondent.blogspot.com/2019/10/yamaha-dx7-algorithms.html)
 - McAllister, M. (2025, June 2). _Yamaha DX7 history_. Guitar Center. [https://www.guitarcenter.com/riffs/gear-tips/keyboards--midi/yamaha-dx7-history](https://www.guitarcenter.com/riffs/gear-tips/keyboards--midi/yamaha-dx7-history)
-- Colbert, P. (1983, November). _Yamaha DX7_. _Muzines_. [https://www.muzines.co.uk/articles/yamaha-dx7/4733](https://www.muzines.co.uk/articles/yamaha-dx7/4733)
+-  Reid, G. (2000, May). More On Frequency Modulation. *SOUND ON SOUND*. [https://www.soundonsound.com/techniques/more-frequency-modulation](https://www.soundonsound.com/techniques/more-frequency-modulation)
