@@ -22,8 +22,23 @@
               "icon": "lucide-file",
               "title": "AI collaboration portfolio"
             }
+          },
+          {
+            "id": "c3e8666662da91f8",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "AI collaboration portfolio.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "AI collaboration portfolio"
+            }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -172,13 +187,14 @@
       "bases:Create new base": false
     }
   },
-  "active": "57900a90ce4efc06",
+  "active": "c3e8666662da91f8",
   "lastOpenFiles": [
+    "README - Proposal.md",
+    "AI collaboration portfolio.md",
     "docs",
     "New folder",
     "Clippings/Branch - Project idea development.md",
     "Template - AI collaboration portfolio.md",
-    "AI collaboration portfolio.md",
     "Notes/AI collaboration portfolio (Sound and Music Programming) — exemplar based on prior student work.md",
     "Notes/Documentation Notes.md",
     "Notes/Sound Discrepancy.md",
@@ -210,8 +226,6 @@
     "syx_parser_old.py",
     "syx_parser.py",
     "ranges.json",
-    "ranges.txt",
-    "README - Proposal.md",
     "Pasted image 20251119163139.png",
     "Pasted image 20251119162845.jpg",
     "KnobKraft.md",
