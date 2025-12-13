@@ -2,5 +2,10 @@
   "promptDelete": false,
   "alwaysUpdateLinks": false,
   "showUnsupportedFiles": true,
-  "attachmentFolderPath": "attachments"
+  "attachmentFolderPath": "attachments",
+  "readableLineLength": true,
+  "foldHeading": true,
+  "showLineNumber": false,
+  "useTab": true,
+  "tabSize": 4
 }

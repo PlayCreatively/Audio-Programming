@@ -137,13 +137,20 @@ OSCdef(\pyListener, { |msg|
 	// msg[45] = "opRatios"
 	// msg[46..51] = 6 floats (Ratios)
 	// msg[52] = "opEnvs"
-	// msg[53..58] = 6 floats (Envs/Levels)
+	// msg[53..76] = 4*6 floats (Envs/Levels)
 
 	var matrix = msg[2..37];
 	var mixer  = msg[39..44];
 	var ratios = msg[46..51];
 	var envLevels = msg[53..76];
-    var envTimes = msg[79..102];
+    var envTimes = msg[78..101];
+
+
+	var roundArray = { |arrayToRound, resolution = 1|
+    arrayToRound.collect { |number|
+        number.round(resolution);
+    };
+};
 
 	~mySynth.set(
 		\opWiringMatrix, matrix,
@@ -161,8 +168,12 @@ OSCdef(\pyListener, { |msg|
     matrix[30..35].postln;
 	"".postln;
 
-	envLevels.postln;
-	envTimes.postln;
+
+	"level: ".post;
+	roundArray.(envLevels, 0.01).postln;
+
+	"time: ".post;
+	roundArray.(envTimes, 0.01).postln;
 
 }, "/update_synth");
 )

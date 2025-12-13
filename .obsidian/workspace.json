@@ -4,50 +4,50 @@
     "type": "split",
     "children": [
       {
-        "id": "e358b1aa22d1be55",
+        "id": "d58e3eb517e0f29c",
         "type": "tabs",
+        "dimension": 48.56850715746422,
         "children": [
           {
-            "id": "11306bdb84175479",
+            "id": "fd6be1e0b48e7fff",
             "type": "leaf",
+            "pinned": true,
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Notes/Sound Discrepancy.md",
+                "file": "Notes/AI collaboration portfolio (Sound and Music Programming) — exemplar based on prior student work.md",
+                "mode": "preview",
+                "source": false
+              },
+              "pinned": true,
+              "icon": "lucide-file",
+              "title": "AI collaboration portfolio (Sound and Music Programming) — exemplar based on prior student work"
+            }
+          }
+        ]
+      },
+      {
+        "id": "5cb27001d124d7c7",
+        "type": "tabs",
+        "dimension": 51.43149284253578,
+        "children": [
+          {
+            "id": "3f1fe7bdbdc9e52f",
+            "type": "leaf",
+            "pinned": true,
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "AI collaboration portfolio.md",
                 "mode": "source",
                 "source": false
               },
+              "pinned": true,
               "icon": "lucide-file",
-              "title": "Sound Discrepancy"
-            }
-          },
-          {
-            "id": "1cd26e0a265fa326",
-            "type": "leaf",
-            "state": {
-              "type": "image",
-              "state": {
-                "file": "attachments/Pasted image 20251119162845.jpg"
-              },
-              "icon": "lucide-image",
-              "title": "Pasted image 20251119162845"
-            }
-          },
-          {
-            "id": "7317f33f84e01020",
-            "type": "leaf",
-            "state": {
-              "type": "image",
-              "state": {
-                "file": "attachments/Pasted image 20251119162845.jpg"
-              },
-              "icon": "lucide-image",
-              "title": "Pasted image 20251119162845"
+              "title": "AI collaboration portfolio"
             }
           }
-        ],
-        "currentTab": 1,
-        "stacked": true
+        ]
       }
     ],
     "direction": "vertical"
@@ -67,7 +67,7 @@
               "type": "file-explorer",
               "state": {
                 "sortOrder": "alphabetical",
-                "autoReveal": false
+                "autoReveal": true
               },
               "icon": "lucide-folder-closed",
               "title": "Files"
@@ -104,7 +104,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "c793ffc02ca4422c",
@@ -195,8 +196,30 @@
       "bases:Create new base": false
     }
   },
-  "active": "57900a90ce4efc06",
+  "active": "3f1fe7bdbdc9e52f",
   "lastOpenFiles": [
+    "Notes/AI collaboration portfolio (Sound and Music Programming) — exemplar based on prior student work.md",
+    "AI collaboration portfolio.md",
+    "Clippings/DX7 SuperCollider Creation.md",
+    "Clippings/Recreating DX7 in SC.md",
+    "Pasted.md",
+    "attachments/Pasted image 20251212143938.png",
+    "Notes/Project Proposal.md",
+    "attachments/Pasted image 20251210151500.png",
+    "Template - AI collaboration portfolio.md",
+    "attachments/Pasted image 20251119162845.jpg",
+    "Notes/Sound Discrepancy.md",
+    "Notes/how difficult is it to recreate the DX7.md",
+    "Notes/DX7 alogrithm notes.md",
+    "Notes/Documentation Notes.md",
+    "Notes/Week 4/2025-10-20.md",
+    "Clippings/Branch - Project idea development.md",
+    "Provide options.md",
+    "Provide options^.md",
+    "Notes/Week 4/AUPRO context week 4/Audio Programming workshop 1.md",
+    "Clippings/Project idea development.md",
+    "Untitled.base",
+    "Clippings/dynamic FM synth configuration.md",
     "project.scd",
     "project.txt",
     "DX7_0628.SYX",
@@ -206,26 +229,15 @@
     "attachments/Pasted image 20251121142225.png",
     "attachments/Pasted image 20251121142335.png",
     "attachments/Pasted image 20251124193512.png",
-    "Notes/Sound Discrepancy.md",
-    "attachments/Pasted image 20251119162845.jpg",
-    "Notes/DX7 alogrithm notes.md",
     "syx_parser_old.py",
     "syx_parser.py",
     "ranges.json",
     "ranges.txt",
     "README - Proposal.md",
     "ai_studio_code - edit.py",
-    "ai_studio_code copy.py",
-    "output.json",
-    "Notes/Project Proposal.md",
     "Pasted image 20251119163139.png",
     "Pasted image 20251119162845.jpg",
-    "Notes/Documentation Notes.md",
-    "Clippings/dynamic FM synth configuration.md",
-    "Notes/how difficult is it to recreate the DX7.md",
     "KnobKraft.md",
-    "Notes/Week 4/2025-10-20.md",
-    "Notes/Week 4/AUPRO context week 4/Audio Programming workshop 1.md",
     "Notes/Week 4/AUPRO context week 4/AUPRO_week3.md",
     "Notes/Week 4/AUPRO context week 4/AUPRO_week1_slides.md",
     "Notes/Week 4/AUPRO context week 4/AUPRO_digital_audio-week4.md",

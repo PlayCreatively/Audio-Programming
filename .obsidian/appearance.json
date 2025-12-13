@@ -1,4 +1,8 @@
 {
   "accentColor": "#c2410b",
-  "cssTheme": ""
+  "cssTheme": "",
+  "showViewHeader": true,
+  "showRibbon": false,
+  "baseFontSize": 21,
+  "baseFontSizeAction": true
 }
