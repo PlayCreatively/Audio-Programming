@@ -6,7 +6,7 @@
       {
         "id": "d58e3eb517e0f29c",
         "type": "tabs",
-        "dimension": 48.56850715746422,
+        "dimension": 44.417475728155345,
         "children": [
           {
             "id": "fd6be1e0b48e7fff",
@@ -29,7 +29,7 @@
       {
         "id": "5cb27001d124d7c7",
         "type": "tabs",
-        "dimension": 51.43149284253578,
+        "dimension": 55.582524271844655,
         "children": [
           {
             "id": "3f1fe7bdbdc9e52f",
@@ -45,6 +45,34 @@
               "pinned": true,
               "icon": "lucide-file",
               "title": "AI collaboration portfolio"
+            }
+          },
+          {
+            "id": "7baded672eb44429",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Template - AI collaboration portfolio.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Template - AI collaboration portfolio"
+            }
+          },
+          {
+            "id": "9841688f2a45cb16",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Clippings/Branch - Project idea development.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Branch - Project idea development"
             }
           }
         ]
@@ -200,20 +228,20 @@
   "lastOpenFiles": [
     "Notes/AI collaboration portfolio (Sound and Music Programming) — exemplar based on prior student work.md",
     "AI collaboration portfolio.md",
+    "Clippings/Branch - Project idea development.md",
+    "Notes/Documentation Notes.md",
+    "Notes/Sound Discrepancy.md",
+    "Notes/DX7 alogrithm notes.md",
+    "Notes/Project Proposal.md",
+    "Notes/how difficult is it to recreate the DX7.md",
+    "Template - AI collaboration portfolio.md",
     "Clippings/DX7 SuperCollider Creation.md",
     "Clippings/Recreating DX7 in SC.md",
     "Pasted.md",
     "attachments/Pasted image 20251212143938.png",
-    "Notes/Project Proposal.md",
     "attachments/Pasted image 20251210151500.png",
-    "Template - AI collaboration portfolio.md",
     "attachments/Pasted image 20251119162845.jpg",
-    "Notes/Sound Discrepancy.md",
-    "Notes/how difficult is it to recreate the DX7.md",
-    "Notes/DX7 alogrithm notes.md",
-    "Notes/Documentation Notes.md",
     "Notes/Week 4/2025-10-20.md",
-    "Clippings/Branch - Project idea development.md",
     "Provide options.md",
     "Provide options^.md",
     "Notes/Week 4/AUPRO context week 4/Audio Programming workshop 1.md",

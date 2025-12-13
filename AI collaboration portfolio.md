@@ -1,47 +1,79 @@
-# 1. Strategic AI Briefing Documentation (500–600 words)
-
-Document how you provided context to AI tools, including your initial project brief,
-technical constraints, and creative goals. Include:
-
-- [ ] a. Your initial project brief given to AI tools
-- [ ] b. Examples of how you provided SuperCollider/DSP context
-- [ ] c. Evidence of how you refined your prompting approach
-
-# 1.1 AI Incorporation
+# 1. Strategic AI Briefing Documentation
+# 1.1 AI Incorporation 
 For this project, AI played the part of an informant, teacher, as well as assistant programmer, therefore there was no direct project brief but instead more of a natural dialogue, as I was gauging the project's feasibility and informing myself on all the parts required to make the project happen.
 
+**Prompt**
 
 ``` Prompt
 would it be difficult to recreate the dx7 with supercollider?`
 ```
 
-After getting a detailed descriptions of what elements are required for the project I wanted a clarification on the 4-segment rate/level envelopes as well as an explanation why it deemed a .syx parser would be a mini-project of its own.
+After getting a detailed descriptions of what elements are required for the project I wanted a clarification on the 4-segment rate/level envelopes.
+
+**Prompt**
 
 ``` Prompt
-1. 4-segment rate/level envelopes? 
-2. Parsing .syx and mapping all parameters is a mini-project on its own. Why?
+4-segment rate/level envelopes?
 ```
+
+Abridged **LLM output (ChatGPT 5.1)**
+
+```
+Each **operator** on a DX7 has an envelope defined by **four Levels (L1–L4)** and **four Rates (R1–R4)**. Think “waypoints” (levels) and “how fast to move between them” (rates):
+
+- **Stage 1:** from current level to **L1** at speed **R1** (attack).
+    
+- **Stage 2:** from L1 → **L2** at speed **R2** (early decay or additional attack shape).
+    
+- **Stage 3:** from L2 → **L3** at speed **R3** (this ends at the _sustain_ level; the DX7 has no separate “sustain time,” it just stays at L3 while the key is held).
+    
+- **Stage 4 (release):** when the key is released, move from “wherever it is now” to **L4** at speed **R4** (usually L4 = 0).
+```
+
+Right, so it's not much different from a traditional ADSR except it's more free-form and has rate as opposed to time. After I understood what parts are in the DX7 I tried to confirm my understanding.
+
+**Prompt**
 
 ``` Prompt
 alright, let's move onto creating the DX7 on the SuperCollider. As far as I understand, it requires 6 oscillators, a 4-segment rate/level envelope for each oscillator, and functions to rewire the oscillators by rewiring the bus. Is there more?
 ```
 
+Abridged **LLM output (ChatGPT 5.1)**
 
+```
+### What’s missing beyond “6 oscillators + 4-segment envs + rewiring”?
+
+Here are the big chunks the DX7 has that you haven’t mentioned yet:
+
+1. **Operator frequency controls**
+	- Per-operator:
+		- Ratio vs fixed frequency modes.
+		- Coarse/fine tuning or just “ratio + detune”.
+2. **Operator-level output controls**
+	- Output level per operator (acts like “how much this operator contributes as carrier/modulator”).
+3. **Feedback**
+	- On a DX7, one operator in each algorithm can feed its own output back into its input (self-FM).
+4. **Pitch envelope**
+	- The DX7 has a global 4-segment pitch envelope separate from the operator amp envelopes.
+5. **Global LFO / modulation**
+	- At least one global LFO that can:
+		- Modulate pitch (vibrato)
+		- Maybe modulate amplitude (tremolo) or operator output levels a bit.
+6. **Keyboard tracking / scaling (optional but tasty)**
+7. **Polyphony / voice architecture**
+```
+
+Many of the things mentioned were an overkill for what I was going for but notable additions were:
+- Ratio frequency modes per operator *(I'll skip the fixed mode)*
+- Feedback
+- Global pitch envelope *(skipped due to time limit)*
+- Global LFO *(skipped due to time limit)*
 ## 1.2 Prompt refinement
-- **Provide options:** as a global command, I instructed the LLM to provide at least two potential approaches to any implementation and explain how one works best for the project.
+- **Provide options:** as a global command, I instructed the LLM to provide at least two potential approaches to any implementation and provide arguments as to why one works best for the project.
 - **Human formality and curtesy**: speaking to it in a thought out and polite manner not only makes you more thoughtful than you might be if talking to a machine, it itself is also more likely to be helpful — the logic being based on prior research, suggesting that politeness increases the quality of LLMs, as well as the often held intuition that since LLMs are a autocomplete prediction machines, deviating from the training data might impact the quality of the answer.
-- ==TODO: add more examples==
 
 ---
-# 2. Example Prompts and AI Outputs (800–1000 words)
-Provide 4–5 detailed examples of AI interactions that were significant to your project
-development. For each example include:
-
-- [ ] a. The exact prompt you used (in code blocks)
-- [ ] b. The AI’s response/output (in code blocks)
-- [ ] c. Your reflective commentary on the quality and usefulness of the response
-- [ ] d. How you modified or used the AI’s suggestion
-
+# 2. Example Prompts and AI Outputs
 # 2.1 Feedback delay
 
 **Prompt**
@@ -52,13 +84,9 @@ how do busses work? can I wire them up so one output is connected to all other i
 
 The LLM provides me with the vital information that SC's buses use a single block buffer (usually 64 samples) for efficiency reasons, which results in a considerable delay in terms of FM synthesis. Since the DX7 was directly wired up, hardware wise, introducing any sort of delay will most likely deviate far from the original sound of the DX7. This informed my next decision when it came to the dynamic wiring of the different operators; since I knew buses were too slow and hardwiring each operator would not allow me to translate between different operator wirings.
 
-**LLM output**
+Abridged **LLM output (Gemini 3 Pro Preview)**
 
 ``` ChatGPT 5.1
-A bus in SuperCollider is a bit like a river: lots of things can pour water into it, and lots of things can scoop water out. The real trick is that the river only holds **one** number per channel at any given instant. It doesn’t magically mix multiple values unless *you* do the mixing.
-
-Two approaches relevant for FM synthesis:
-
 ### Approach 1 — “Real” audio busses
 
 You physically route signals through SC’s AudioBus system.
@@ -81,8 +109,6 @@ So for pure FM routing, global busses are awkward. They work, but the sound will
 
 ### Approach 2 — Use SC’s graph-level wiring inside a single SynthDef
 
-This is how most FM synths in SuperCollider are built.
-
 Inside a SynthDef, every operator is just a signal variable, like:
 
 You’re patching values directly by referencing variables. No buses, no latency.
@@ -96,8 +122,6 @@ Here:
 
 Since this is just math in the DSP graph, it’s sample-accurate.
 
-This is how you build FM algorithms: direct wiring in the SynthDef.
-
 ---
 
 ### Approach 3 — LocalIn / LocalOut (feedback-friendly busses inside a SynthDef)
@@ -105,27 +129,6 @@ This is how you build FM algorithms: direct wiring in the SynthDef.
 SuperCollider includes a special trick for feedback loops:
 
 This introduces *one sample* of delay—much tighter than an audio bus’s block delay. It’s decent for DX7-style feedback operators.
-
----
-
-### So what’s the best strategy for your DX7 clone?
-
-- For **operator → operator** FM routing, use **graph-level connections**, not audio busses.
-- For **self-feedback**, use **LocalIn/LocalOut**.
-- For **polyphony and voice management**, you can use node-level audio busses *outside* the SynthDef, but not inside the FM structure.
-
----
-
-### TL;DR
-
-Inputs don’t have “multiple inputs” and outputs don’t have “multiple outputs”—a bus is just a number. But you absolutely can have:
-
-- multiple outputs writing to the same bus → they sum
-- many readers reading the same bus → they all get the same signal
-
-Technically everything you asked is allowed, but for a 6-op FM synth, **busses are the wrong tool for operator routing**. The FM graph should live inside a single SynthDef so you get clean, sharp FM like the DX7.
-
-If you’re curious, next step can be: how to represent an algorithm as a data structure so the SynthDef wires itself automatically. That’s a fun bit of SuperCollider metaprogramming, and gets you closer to a modular DX7.
 ```
 
 # 2.2 Dynamic wiring
@@ -138,7 +141,7 @@ see these different connections?
 is it possible to create a single system that can linearly interpolate between any of these systems? If so, how would they be wired up and how would it work?
 ```
 
-**LLM output (Gemini 3 Pro Preview)**
+Abridged **LLM output (Gemini 3 Pro Preview)**
 
 ``` Gemini 3 Pro Preview
 In the field of vehicle dynamics and control theory, this concept is known as a **Reconfigurable Active Suspension** or a **Virtual Suspension System.**
@@ -163,17 +166,10 @@ $$
 \vec M_{ixer} \cdot \vec I_n \cdot M^\intercal  =\vec O_{ut}
 $$
 
-**LLM output (Gemini 3 Pro Preview)**
+**Abridged LLM output (Gemini 3 Pro Preview)**
 
 ``` Gemini 3 Pro Preview
-This changes the context completely! If this is a digital synthesizer (specifically **FM Synthesis**, as these diagrams are almost certainly the 32 algorithms from the classic **Yamaha DX7**), the solution is much more elegant than hydraulic pipes.
-
 To create a single system that can linearly interpolate between these discrete algorithms—morphing from a "stack" (series) to "carriers" (parallel) and everything in between—you need to build a **Fully Connected Modulation Matrix**.
-
-Here is how you wire it up and how the interpolation logic works within a Digital Signal Processing (DSP) environment (like Max/MSP, Reaktor, SuperCollider, or C++).
-
-### 1. The Wiring: The "Matrix" Approach
-In a standard DX7, the "Algorithm" is a hard-wired preset. To make it morphable, you must "un-wire" it and connect **everything to everything**.
 
 You need two primary data structures:
 
@@ -187,11 +183,6 @@ You need two primary data structures:
 
 ### 2. How it Works: The Order of Operations
 Since you specified that the order is critical (Node B processes Node A's output), you must calculate the operators in a specific sequence every single audio sample.
-
-However, to allow *any* feedback configuration (like the loops seen on the top of the blocks in the diagrams), you usually calculate from the "bottom up" or use a **one-sample delay** for feedback paths.
-
-#### The Universal DSP Block (The "Single System")
-Instead of 32 different code blocks, you write **one** loop that runs for every audio sample:
 
 \```pseudo
 // Store the output of all 6 operators from the previous sample (for feedback)
@@ -224,53 +215,119 @@ for k = 1 to 6:
 ### 3. Linearly Interpolating (The "Morph")
 Now you have a "Universal Algorithm." To morph between **Diagram 1** and **Diagram 32**, you simply interpolate the values in the **Matrix** and the **Output Mixer**.
 
-**Example: Morphing from Algorithm 1 to Algorithm 32**
-
-*   **State A (Diagram 1 - The Tower):**
-    *   Matrix: Op 6 modulates 5, 5 modulates 4, 4 modulates 3...
-    *   Output Mixer: Only Op 1 is audible (1.0). Op 2–6 are silent (0.0).
-*   **State B (Diagram 32 - The Flat Line):**
-    *   Matrix: All modulation values are 0.0 (no FM, just additive).
-    *   Output Mixer: All Operators are audible (1.0).
-
-**The Interpolation Logic:**
-If your morph knob is at 50% ($\alpha = 0.5$):
-
-1.  **The Connections:** The connection "Op 6 $\to$ Op 5" fades to 50% strength. The spectral complexity decreases smoothly.
-2.  **The Outputs:** Operators 2, 3, 4, 5, and 6 slowly fade in at the main output.
-3.  **The Result:** You will hear the complex, metallic FM tower slowly dissolve into a massive, thick chord of 6 stacked sine waves.
-
 ### 4. Dealing with Feedback (The loops on top of boxes)
 You'll notice some boxes (like Box 6 in Diagram 1) have a line connecting to themselves.
 *   In the **Matrix**, this is simply the diagonal value `Matrix[6][6]`.
 *   To interpolate a feedback loop, you linearly fade that value from 0.0 to 1.0 (or whatever the target feedback amount is).
-
-### Summary
-Yes, you can build this.
-1.  **Wire it:** Connect every Operator to every other Operator (and itself) with a variable gain node (VCA).
-2.  **Wire the outs:** Connect every Operator to the main output with a variable gain node.
-3.  **Control it:** Store the 32 diagrams as "Presets" of Matrix values.
-4.  **Morph it:** Use linear interpolation (Line/Ramp function) to transition the grid of gain values from Preset A to Preset B over time.
-
-This is effectively how modern "Matrix Synths" (like Arturia's MatrixBrute or Native Instruments' FM8) work under the hood, allowing for sounds that are impossible on the original hardware.
 ```
 
 In further retrospect, I notice that regardless of how chaotic the operator wiring are, they always go from a higher index down to a lower index. Simply by that logic I can safely assume that calculating from the highest index down to the lowest ensures that the input is as fresh as it can be, only requiring me to reorder the calculations to get even closer to the DX7 hardware. 
 
 I believe I already had this thought early on, but since the wiring is so dynamic, and I wanted the freedom of exploring configurations outside of the hardwired DX7 configurations I thought that hardcoding in a single buffer would make the space symmetric. But if this single delay buffer has audible impact then it might have been the wrong decision.
 
+As usual, I made sure I understood what the LLM was saying and that we were on the same page:
+
+**Prompt**
+
+```
+Alright, let's see if I understand this correctly. Each row represents the summed input to that index's operator? and the order of operations is dictated by calculating one row at a time?
+```
+
+The LLM proceeds to go into detail on how it works, confirming I had understood it correctly.
+
+# 2.3 Algorithm symmetry
+
+**Prompt**
+
+```
+Great, this is exactly what I thought. One question tho; is this system symmetric? As in, can I represent the same wiring using two different matrices?  
+My instinct says almost. You can create the same wiring using a different matrix but that one just goes against the order of operation. So kind of mirroring the matrix (diagonally? maybe?) results in the same combination, but since the order of operations stays the same it will always work with one cycle old input.
+
+Is this correct?
+```
+
+I was worried about symmetry for the precise reason that the User Interface that would accompany this project is based on the idea that you can explore all the potential parameter space of a complex system like the one I'm building, but if the system had symmetries then it would directly work against the goal of creating a tool that helps you exhaustively explore the potential sound-space of a synth. Ideally the space should be dense and non-repeating, but my intuitive told me that the dynamic and free-form nature of this system would make it flexible enough to be able to represent, more or less, the same configuration with symmetrical wiring.  
+
+**Abridged LLM output (Gemini 3 Pro Preview)**
+
+```
+You have very strong intuition here, but there is a specific terminology distinction we need to make between **Symmetry** (transposing the matrix) and **Isomorphism** (renumbering the nodes).
+
+The short answer is: **No, the matrix is not symmetric**, and "mirroring" the matrix (transposing it) will completely break the sound. However, your instinct about "representing the same wiring with a different matrix" is correct if you are talking about **permuting (renumbering)** the operators.
+# The "Permutation" Exception (What you likely meant)
+You *can* represent the exact same topology with a different matrix **if you renumber the nodes**.
+
+Imagine **Diagram 16**:
+*   Op 2, 4, and 6 are all modulators.
+*   Op 2 modulates Op 1.
+*   Op 4 modulates Op 3.
+*   Op 6 modulates Op 5.
+
+Since Op 2, 4, and 6 are mathematically identical (assuming their internal settings like Envelope and Ratio are the same), you could swap Op 2 and Op 4 in the matrix.
+*   **Matrix A:** Row 1 gets input from Col 2.
+*   **Matrix B:** Row 1 gets input from Col 4.
+
+The matrix looks different, but the **Graph Isomorphism** is the same. The sound is identical. This is a permutation, not a transposition.
+
+### 3. The "Order of Operations" vs. The "Delay"
+This is the most critical part of your question:
+> *"since the order of operations stays the same it will always work with one cycle old input."*
+
+You have hit on the **Standardization Solution**.
+
+If you implement the **Global One-Sample Delay** (where *every* read operation looks at the `previous_sample` buffer), you effectively remove "Order of Operations" from the equation entirely.
+
+*   **Without Global Delay:** calculating $1 \to 2 \to 3$ gives a different result than $3 \to 2 \to 1$ because of serial dependency.
+*   **With Global Delay:** It doesn't matter if you calculate Op 6 first or Op 1 first. They are all reading from the *same* static snapshot of the past.
+
+**The Consequence:**
+This confirms your suspicion: Because the system is standardized to "always use old input," the matrix purely defines the **topology** (who connects to whom), and the loop order ($i=0..6$) is just an implementation detail.
+
+You have designed a **Time-Invariant Directed Graph**. As long as the matrix values align with the intended signal flow direction, the system will work linearly.
+```
+
+Indeed, since I'm using a single block delay cache, it does not matter in which order I calculate the operators as I'm not taking the recently baked output of one operator and shoving it straight into the next. Not to say this cache makes things drastically different; if we were to work straight on the freshly calculated output, at worst, an isomorphic variant of an algorithm will be wired in reverse order and you would end up with a single block delay, again. So forcing the cache makes the symmetry more clean.
+
+**Prompt**
+
+```
+But, you're right about the fact that you can create a permutation by having two operators being equal. What you can also do is by simply shifting the matrix vertically, you're basically shifting the position of each operator which still results in the same output, but I guess that also requires the operators' internal values to shift along with it?
+```
+
+The LLM correctly corrects me that the shift would have to be both vertical and horizontal, in order to keep the row/column matching. It also confirms that the internal state of the operators would have to shift as well, making the isomorphic space depend on quite a few more parameters, but still remain prominent.
+
+Abridged **LLM output (Gemini 3 Pro Preview)**
+
+```
+You are absolutely correct. You have effectively discovered the concept of **Matrix Permutation** in graph theory.
+
+If you "shift" the matrix, you are essentially just renaming the Operators.
+
+**However**, as you correctly guessed, for the sound to remain identical, you must move **three** things simultaneously:
+
+### 1. The Matrix Rows AND Columns
+
+You can't just shift the rows vertically. You have to shift the columns horizontally to match. 
+
+When you shift both, you are changing who the operator is.
+
+### 2. The Internal Parameters (The "Voice")
+
+This is the part you identified: "I guess that also requires the operators internal values to shift along with it?"
+
+**Yes.** An "Operator" in FM synthesis is just a container for state variables:
+
+- Frequency Ratio (e.g., 1.0 vs 2.0)
+    
+- Envelope (ADSR settings)
+    
+- Detune amount
+    
+- Velocity Sensitivity
+```
+
 ---
-
-~~Since the [[#1.2 Prompt refinement|Provide Options]] prompt is in effect, I often get forced options that are not only ~~
-
----
-# 3. Critical Filtering and Decision Making (400–500 words)
-Document specific instances where you rejected or significantly modified AI
-suggestions. Include:
-
-- [ ] a. At least 2 examples of AI outputs you rejected with your reasoning
-- [ ] b. Examples of code you modified or improved from AI suggestions
-- [ ] c. Your criteria for evaluating AI suggestions in audio programming contexts
+# 3. Critical Filtering and Decision Making
 
 There was not as much critical filtering as there were critiques, inquiries, and corrections. This is due to the fact that in order to maintain an up-to-date context, the AI needed to be led along and kept on the same page. 
 
@@ -394,14 +451,21 @@ Because a DX7 voice isn’t “a few knobs.” It’s a **dense, packed spec** w
     - Design musical approximations and accept small drift from hardware/DEXED.
         
 - **Operator indexing & routing.** The 32 algorithms define a directed graph of who modulates whom; you must translate the algorithm number into your engine’s operator wiring (and place feedback on the right node).
-    
-- **Compatibility choices.** Do you target mkI semantics (classic DX7) or mkII/TX802 (extras, different ranges), and do you support bank dumps with performance data?
 ```
 
----
-# 4. Collaboration Strategy Reflection (300–400 words)
+It specifies a lot of complexity and the multitudes of parameters to parse. However, I knew it wouldn't have to be a 'whole project on its own' if we had an existing reference to use. So I ask.
 
-As agreed with my supervisor, Matt Bellingham, the following section will look the same for both Audio Programming and Sound and Music Programming as both projects were worked on in tandem and differentiating between my LLM collaboration approaches would be difficult and frankly disingenuous, as they were one in the same. 
+```
+are there any SYX file readers online?
+```
+
+The LLM proceeds to dump a bunch of online parsers as well as open source libraries, of which I deemed Dexed to be a very promising tool as it stated "Dexed is also a midi cartridge librarian/manager for the DX7" on their [website](https://asb2m10.github.io/dexed/).
+
+---
+# 4. Collaboration Strategy Reflection
+
+> [!INFO]
+> As agreed with my supervisor, Matt Bellingham, the following section will look the same for both Audio Programming and Sound and Music Programming as both projects were worked on in tandem and differentiating between my LLM collaboration approaches would be difficult and frankly disingenuous, as they were one in the same. 
 
 The collaboration was at its best when I was able to abstract individual generic problems from the project and tackle it in isolation using an LLM as a thinking partner. Once that problem is solved, implementing it manually as a generic function guarantees that you retain ownership and full comprehension of the whole codebase.
 
@@ -409,9 +473,10 @@ What can sadly happen is that time constraints and anxieties will steer you towa
 
 I tried to get the LLM to work in a way that facilitated the former approach, however, their underlying incentive is predisposed to do the work for you and spit out working code. It is not yet capable of reprograming itself to slow down and have a human-like dialogue where its making sure you're following along as opposed to throwing a whole assay at you, hoping it's covering all potential future questions you might have.
 
-Creatively, it affords you to stay more in the high level thinking than the implementation level, freeing you from the limitations of your own knowledge and capability as well as the tunnel vision that the implementation level can lead to.
+Creatively, it affords you to stay more in the high level thinking than the implementation level, freeing you from the limitations of your own knowledge and capability as well as the tunnel vision that the implementation level traps you in.
 
-For a long time, professions relating to programming have had the [defect of being able to] take shortcuts, be it writing solutions based on intuition alone or brute-forced debugging which leads to solutions you can't explain. Then, since the introduction of the internet (and websites such as [stackoverflow.com](https://stackoverflow.com/)) outsourcing your solutions to fellow programmers have become easier, and now, at the dawn of LLMs, as they creep into our toolchains, it's become harder to not make use of the speed boost. I'm stating this because it only happens when the time allocated is not enough for the job to be done, and as long as jobs have deadlines, shortcuts will be taken.
+For a long time, professions relating to programming have had the unavoidable affordance of shortcuts, be it writing solutions based on intuition alone or brute-forced debugging which leads to solutions you can't explain. Later on, since the introduction of the internet (and websites such as [stackoverflow.com](https://stackoverflow.com/)), outsourcing your solutions to fellow programmers have become easier, and now, at the dawn of LLMs, as they creep into our tools, it has become close to impossible to not make use of the speed boost.
+However, this is only relevant to jobs for which not enough time has been allocated, and as long as jobs have fast approaching deadlines, shortcuts will be taken.
 
 ---
 # 5. Annotation Integration
@@ -430,7 +495,6 @@ For a long time, professions relating to programming have had the [defect of bei
 - **Language/platform choice:** Choosing between [Faust](https://faust.grame.fr/), [Juce](https://juce.com/get-juce/) and [SuperCollider](https://supercollider.github.io/) (SC), I initially went for Faust as it compiled down to a CPP script which would be easy to integrate with any GUI framework I go with when creating the interface for the project which is my project for Sound and Music Programming and not this Audio Programming class. Faust also had an online editor to quickly get running with any sort of audio generation. But after learning about Open Sound Control (OSC) I settled on SC as I thought it be better to use the tools I was being taught in class. In hindsight, Faust might have been the more appropriately flexible tool to use.
 - **Design decisions:** Due to my own aspirations I wanted to be able to linearly interpolate between algorithms and in order to do that I would have to move away from the binary operator wiring and move to what ChatGPT 5.1 succinctly called 'variable gain nodes', which simply means the connections will be linear as opposed to binary. With that, and representing the connections as a matrix (sometimes referred to as a "matrix circuit", see image), I can dynamically wire up any existing or hypothetical DX7 algorithm in existence.
    ![[Pasted image 20251212143938.png|300]]
-   
    I also decided to make it freely configurable which operators output their audio. So unlike the DX7, where the output operator is directly dictated by the algorithm, I have made it into its own parameter, meaning I can make any and all of the operators both feedback and output at the same time.
 
 ### 5.4 Evaluation against aims and heuristics
@@ -441,4 +505,15 @@ For a long time, professions relating to programming have had the [defect of bei
 If I had more time I might have aborted the multi-algorithm setup and gone for a single algorithm, hardcoding the nested frequency modulation and making use of the dedicated **`PMOsc`** UGen in Super Collider, as that might have resulted in a closer output parity; although, **`PMOsc`** doesn't have a phase parameter, making a DX7 simulation using vanilla Super Collider a potential lost cause.
 
 ### 5.5 Reference list
-1. [ ] References: Compile an APA-formatted reference list that includes well-chosen technical sources and details of the tools that influenced your work. All code examples should be properly formatted using Markdown code blocks with appropriate syntax highlighting.
+
+**Website and repository**  
+- Gauthier, P. (n.d.). _Dexed_. GitHub Pages. Retrieved December 13, 2025, from [https://asb2m10.github.io/dexed/](https://asb2m10.github.io/dexed/)
+- Gauthier, P. (n.d.). _Dexed_ [Source code]. GitHub. Retrieved December 13, 2025, from [https://github.com/asb2m10/dexed](https://github.com/asb2m10/dexed)
+
+**YouTube video**  
+- Grant Sanderson. (24, December 24). _But what is a Fourier series? | Chapter I, Essence of calculus_ [Video]. YouTube. [https://youtu.be/IQqtsm-bBRU?t=649](https://youtu.be/IQqtsm-bBRU?t=649)
+
+**Blog and articles**  
+- Dent, J. (2019, October 21). _Yamaha DX7 algorithms_. DJ Jondent’s Blog. [https://djjondent.blogspot.com/2019/10/yamaha-dx7-algorithms.html](https://djjondent.blogspot.com/2019/10/yamaha-dx7-algorithms.html)
+- McAllister, M. (2025, June 2). _Yamaha DX7 history_. Guitar Center. [https://www.guitarcenter.com/riffs/gear-tips/keyboards--midi/yamaha-dx7-history](https://www.guitarcenter.com/riffs/gear-tips/keyboards--midi/yamaha-dx7-history)
+- Colbert, P. (1983, November). _Yamaha DX7_. _Muzines_. [https://www.muzines.co.uk/articles/yamaha-dx7/4733](https://www.muzines.co.uk/articles/yamaha-dx7/4733)
