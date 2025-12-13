@@ -1,3 +1,6 @@
+---
+share: true
+---
 # 1. Strategic AI Briefing Documentation
 # 1.1 AI Incorporation 
 For this project, AI played the part of an informant, teacher, as well as assistant programmer, therefore there was no direct project brief but instead more of a natural dialogue, as I was gauging the project's feasibility and informing myself on all the parts required to make the project happen.

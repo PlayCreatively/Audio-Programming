@@ -1,0 +1,8 @@
+{
+  "tickSoundEnabled": true,
+  "tickSound": "80s-achievement-unlocked-94452",
+  "tickSoundVolume": 0.6,
+  "untickSoundEnabled": false,
+  "untickSound": "Task_Completed",
+  "untickSoundVolume": 0.6
+}
