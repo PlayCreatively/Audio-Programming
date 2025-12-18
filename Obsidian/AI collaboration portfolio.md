@@ -1,6 +1,6 @@
 # 1. Strategic AI Briefing Documentation
 # 1.1 AI Incorporation 
-For this project, AI played the part of an informant, teacher, as well as assistant programmer, therefore there was no direct project brief but instead more of a natural dialogue, as I was gauging the project's feasibility and informing myself on all the parts required to make the project happen.
+For this project, AI played the part of an informant, teacher, as well as an assistant programmer, therefore there was no direct project brief but instead more of a natural dialogue, as I was gauging the project's feasibility and informing myself on all the parts required to make the project happen.
 
 **Prompt**
 
@@ -135,7 +135,8 @@ This introduces *one sample* of delay—much tighter than an audio bus’s block
 
 **Prompt**
 
-![[Pasted image 20251119162845.jpg]]
+<img src="attachments/Pasted image 20251119162845.jpg">
+
 ``` Prompt
 see these different connections?  
 is it possible to create a single system that can linearly interpolate between any of these systems? If so, how would they be wired up and how would it work?
@@ -148,7 +149,7 @@ In the field of vehicle dynamics and control theory, this concept is known as a�
 [...]
 ```
 
-For brevity I will stop here as it went on to describe how something like the Mars rover (considering it also has 6 wheels) would be wired up... Very smart Gemini ✨ Here's a cookie 🍪.
+For brevity I will stop here as it went on to describe how something like the Mars rover (considering it also has 6 wheels) would be wired up.
 
 My reasoning for not providing context to this diagram is precisely because I wanted a generic solution to the very generic problem of linearly interpolating between different configurations of something that is essentially nodes and edges. In terms of Graph Theory, I wanted a way to interpolate between two graphs, knowing the number of nodes will stay the same. So I knew a solution existed where every node would be connected to each other and the connection could be represented as the **weight** of each edge, and since they're linear values, ranging from 0 to 1, we can interpolate between different graphs by simply interpolating the weights. However, the two things I didn't know yet, was:
 
@@ -162,8 +163,9 @@ this is all digital, it's in fact a synthesizer; one thing that's important is t
 ```
 
 The LLM provides me with the incredibly neat, and in hindsight, incredibly obvious solution of storing everything in a 6x6 matrix and treating the columns as the input and the rows as the output. In a matrix aware language, such operations could be as succinct as calculating the dot product between the output mixer vector (which operator should output to the speaker), the input vector (a cache of the previously calculated outputs of each operator) and the transported wiring matrix:
+
 $$
-\vec M_{ixer} \cdot \vec I_n \cdot M^\intercal  =\vec O_{ut}
+\Huge \vec M_{ixer} \cdot \vec I_n \cdot M^\intercal  =\vec O_{ut}
 $$
 
 **Abridged LLM output (Gemini 3 Pro Preview)**
@@ -464,7 +466,7 @@ The LLM proceeds to dump a bunch of online parsers as well as open source librar
 ---
 # 4. Collaboration Strategy Reflection
 
-> [!INFO]
+> [!IMPORTANT]
 > As agreed with my supervisor, Matt Bellingham, the following section will look the same for both Audio Programming and Sound and Music Programming as both projects were worked on in tandem and differentiating between my LLM collaboration approaches would be difficult and frankly disingenuous, as they were one in the same. 
 
 The collaboration was at its best when I was able to abstract individual generic problems from the project and tackle it in isolation using an LLM as a thinking partner. Once that problem is solved, implementing it manually as a generic function guarantees that you retain ownership and full comprehension of the whole codebase.
@@ -493,8 +495,10 @@ However, this is only relevant to jobs for which not enough time has been alloca
 ### 5.3 Implementation process
 
 - **Language/platform choice:** Choosing between [Faust](https://faust.grame.fr/), [Juce](https://juce.com/get-juce/) and [SuperCollider](https://supercollider.github.io/) (SC), I initially went for Faust as it compiled down to a CPP script which would be easy to integrate with any GUI framework I go with when creating the interface for the project which is my project for Sound and Music Programming and not this Audio Programming class. Faust also had an online editor to quickly get running with any sort of audio generation. But after learning about Open Sound Control (OSC) I settled on SC as I thought it be better to use the tools I was being taught in class. In hindsight, Faust might have been the more appropriately flexible tool to use.
-- **Design decisions:** Due to my own aspirations I wanted to be able to linearly interpolate between algorithms and in order to do that I would have to move away from the binary operator wiring and move to what ChatGPT 5.1 succinctly called 'variable gain nodes', which simply means the connections will be linear as opposed to binary. With that, and representing the connections as a matrix (sometimes referred to as a "matrix circuit", see image), I can dynamically wire up any existing or hypothetical DX7 algorithm in existence.
-   ![[Pasted image 20251212143938.png|300]]
+- **Design decisions:** Due to my own aspirations I wanted to be able to linearly interpolate between algorithms and in order to do that I would have to move away from the binary operator wiring and move to what ChatGPT 5.1 succinctly called 'variable gain nodes', which simply means the connections will be linear as opposed to binary. With that, and representing the connections as a matrix (sometimes referred to as a "matrix circuit", see image), I can dynamically wire up any existing or hypothetical DX7 algorithm.
+  
+  <img src="attachments/Pasted%20image%2020251212143938.png" width="300">
+   
    I also decided to make it freely configurable which operators output their audio. So unlike the DX7, where the output operator is directly dictated by the algorithm, I have made it into its own parameter, meaning I can make any and all of the operators both feedback and output at the same time.
 
 ### 5.4 Evaluation against aims and heuristics
