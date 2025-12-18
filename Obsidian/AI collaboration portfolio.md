@@ -1,5 +1,6 @@
-# 1. Strategic AI Briefing Documentation
-# 1.1 AI Incorporation 
+# AI collaboration portfolio
+## 1. Strategic AI Briefing Documentation
+### 1.1 AI Incorporation 
 For this project, AI played the part of an informant, teacher, as well as an assistant programmer, therefore there was no direct project brief but instead more of a natural dialogue, as I was gauging the project's feasibility and informing myself on all the parts required to make the project happen.
 
 **Prompt**
@@ -68,13 +69,13 @@ Many of the things mentioned were an overkill for what I was going for but notab
 - Feedback
 - Global pitch envelope *(skipped due to time limit)*
 - Global LFO *(skipped due to time limit)*
-## 1.2 Prompt refinement
+### 1.2 Prompt refinement
 - **Provide options:** as a global command, I instructed the LLM to provide at least two potential approaches to any implementation and provide arguments as to why one works best for the project.
 - **Human formality and curtesy**: speaking to it in a thought out and polite manner not only makes you more thoughtful than you might be if talking to a machine, it itself is also more likely to be helpful — the logic being based on prior research, suggesting that politeness increases the quality of LLMs, as well as the often held intuition that since LLMs are a autocomplete prediction machines, deviating from the training data might impact the quality of the answer.
 
 ---
-# 2. Example Prompts and AI Outputs
-# 2.1 Feedback delay
+## 2. Example Prompts and AI Outputs
+### 2.1 Feedback delay
 
 **Prompt**
 
@@ -131,7 +132,7 @@ SuperCollider includes a special trick for feedback loops:
 This introduces *one sample* of delay—much tighter than an audio bus’s block delay. It’s decent for DX7-style feedback operators.
 ```
 
-# 2.2 Dynamic wiring
+### 2.2 Dynamic wiring
 
 **Prompt**
 
@@ -237,7 +238,7 @@ Alright, let's see if I understand this correctly. Each row represents the summe
 
 The LLM proceeds to go into detail on how it works, confirming I had understood it correctly.
 
-# 2.3 Algorithm symmetry
+### 2.3 Algorithm symmetry
 
 **Prompt**
 
@@ -329,11 +330,11 @@ This is the part you identified: "I guess that also requires the operators inte
 ```
 
 ---
-# 3. Critical Filtering and Decision Making
+## 3. Critical Filtering and Decision Making
 
 There was not as much critical filtering as there were critiques, inquiries, and corrections. This is due to the fact that in order to maintain an up-to-date context, the AI needed to be led along and kept on the same page. 
 
-# 3.1 Pushback
+### 3.1 Pushback
 
 **Abridged LLM output (ChatGPT 5.1)**
 
@@ -395,7 +396,7 @@ Everything else in the topology is strictly feed-forward.
 
 To summarize the conversation above, we were not speaking the same language when it came to frequency modulation, LLM used the term feedback as meaning self modulation and I understood feedback as any sort of modulation driven by another operator. At first, I believed it to be hallucinating as the DX7 clearly had more modulating operators than 1 in each algorithm. Were I to shrug it off as a hallucination, as opposed to a misunderstanding, we might not have gotten to an understanding, and the ill-defined terminology we were both using might have risen somewhere else where it might not have been as obvious that we were speaking past each other.
 
-# 3.2 Inquiry
+### 3.2 Inquiry
 
 **Prompt**
 
@@ -464,7 +465,7 @@ are there any SYX file readers online?
 The LLM proceeds to dump a bunch of online parsers as well as open source libraries, of which I deemed Dexed to be a very promising tool as it stated "Dexed is also a midi cartridge librarian/manager for the DX7" on their [website](https://asb2m10.github.io/dexed/).
 
 ---
-# 4. Collaboration Strategy Reflection
+## 4. Collaboration Strategy Reflection
 
 > [!IMPORTANT]
 > As agreed with my supervisor, Matt Bellingham, the following section will look the same for both Audio Programming and Sound and Music Programming as both projects were worked on in tandem and differentiating between my LLM collaboration approaches would be difficult and frankly disingenuous, as they were one in the same. 
@@ -481,7 +482,7 @@ For a long time, professions relating to programming have had the unavoidable af
 However, this is only relevant to jobs for which not enough time has been allocated, and as long as jobs have fast approaching deadlines, shortcuts will be taken.
 
 ---
-# 5. Annotation Integration
+## 5. Annotation Integration
 ### 5.1 Original aims
 
 - **Creative goal:** Make a close enough simulation of the DX7 with the ability to read in old **MIDI System Exclusive files** (.syx) that contained famous 80s synth presets. 
@@ -516,6 +517,7 @@ If I had more time I might have aborted the multi-algorithm setup and gone for a
 
 **YouTube video**  
 - Grant Sanderson. (24, December 24). _But what is a Fourier series? | Chapter I, Essence of calculus_ [Video]. YouTube. [https://youtu.be/IQqtsm-bBRU?t=649](https://youtu.be/IQqtsm-bBRU?t=649)
+AI collaboration portfolio
 
 **Blog and articles**  
 - Colbert, P. (1983, November). _Yamaha DX7_. _Muzines_.[https://www.muzines.co.uk/articles/yamaha-dx7/4733](https://www.muzines.co.uk/articles/yamaha-dx7/4733)
