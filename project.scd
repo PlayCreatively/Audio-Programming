@@ -1,5 +1,17 @@
+/*
+ * DX7 Logic in SuperCollider
+ *
+ * This file implements the synthesis engine. It relies on OSC messages to update
+ * its internal calibration data (modulation indices, matrix, envelopes) which are
+ * derived from the Python parsing script.
+ *
+ * Architecture:
+ * - \subSynth: A single DX7 voice (monophonic in this context, but the engine allows polyphony if instantiated multiple times)
+ * - OSCdef(\pyListener): Listens for parsed batch data from Python.
+ */
+
 (
-s.options.blockSize = 1; // Default is 64
+s.options.blockSize = 1; // Default is 64. Lower block size needed for tight feedback loops in FM.
 s.reboot;
 )
 
@@ -9,52 +21,60 @@ SynthDef(\subSynth, { | baseFreq = 220, gate = 1 |
 
     // --- INPUTS ---
 	// 6x6 Matrix (Contains the Volumes/ModIndices calculated in Python)
+	// Flattened 36-element array. Row=Dest, Col=Src.
 	var opWiringMatrix = \opWiringMatrix.kr(0!(opCount*opCount));
+	// 1 if Operator goes to audio out, 0 otherwise
 	var opOutMixer     = \opOutMixer.kr(0!opCount);
+	// Frequency ratios (e.g. 1.0, 2.0, 0.5)
 	var opRatios       = \opRatios.kr(1!opCount);
 
     // ENVELOPES: Flattened arrays (6 ops * 4 stages = 24 values)
-    // [Op1_L1, Op1_L2... Op1_L4, Op2_L1...]
+    // Format: [Op1_L1, Op1_L2, Op1_L3, Op1_L4, Op2_L1...]
     var opEnvLevels    = \opEnvLevels.kr(0!(opCount*4));
     var opEnvTimes     = \opEnvTimes.kr(1!(opCount*4));
 
+	// Feedback container: Reads audio from the end of the previous cycle
 	var opCtrlOutBank = LocalIn.ar(opCount);
 
     // --- HELPER: Create Envelope for Operator i ---
     var makeOpEnv = { |opIndex|
-    var start = opIndex * 4;
-    // Slice the flat arrays
-    var levels = opEnvLevels[start .. start+3]; // [L1, L2, L3, L4]
-    var times  = opEnvTimes[start .. start+3];  // [R1, R2, R3, R4]
+		var start = opIndex * 4;
+		// Slice the flat arrays to get data for this specific operator
+		var levels = opEnvLevels[start .. start+3]; // [L1, L2, L3, L4]
+		var times  = opEnvTimes[start .. start+3];  // [R1, R2, R3, R4]
 
-    // DX7 Topology:
-    // Start at L4 (usually 0, but can be non-zero).
-    // Time1 -> L1
-    // Time2 -> L2
-    // Time3 -> L3 (SUSTAIN POINT)
-    // Time4 -> L4 (Release Phase)
+		// DX7 Envelope Topology vs SuperCollider Env:
+		// DX7: Starts at L4 (previous level), goes to L1 in Time1.
+		// SC Env: defined by points and durations between them.
 
-    EnvGen.ar(
-		Env(
-            [levels[3], levels[0], levels[1], levels[2], levels[3]], // Points
-            [times[0], times[1], times[2], times[3]], // Durations
-            -4, // Curve type (DX7 is roughly exp/linear mix, exp sounds better)
-            3 // Release Node: Index 3 corresponds to 'levels[2]' (L3) in the levels array above
-            ),
-            gate
-        )
+		EnvGen.ar(
+			Env(
+				// Levels: [Start(L4), Target1(L1), Target2(L2), Sus(L3), End(L4)]
+				// Note: DX7 envelope behavior is complex. This is an approximation.
+				[levels[3], levels[0], levels[1], levels[2], levels[3]],
+				// Times: [T1, T2, T3, T4]
+				[times[0], times[1], times[2], times[3]],
+				-4, // Curve type (Exp)
+				3    // Release Node: The envelope stays at index 3 (levels[2]/L3) while gate is 1.
+				),
+				gate
+			)
     };
 
+	// Helper to access flattened matrix
 	var indexOpWiringMatrix = { |r, c|
 		opWiringMatrix[(r * opCount) + c];
 	};
 
+    // Calculate FM Input for Operator i
 	var getOpInput = {|op_i|
 		var sum = 0;
 		opCount.do{|op_o|
-            // The matrix value here ALREADY includes the Operator's Output Level (Radians)
-            // calculated in Python.
+            // op_o is the Modulator, op_i is the Carrier.
+            // The matrix stores the Modulation Index (depth).
 			var gain = indexOpWiringMatrix.(op_i, op_o);
+
+			// Add the output of the modulator specific gain
 			sum = sum + (gain * opCtrlOutBank[op_o]);
 		};
 		sum
@@ -68,8 +88,10 @@ SynthDef(\subSynth, { | baseFreq = 220, gate = 1 |
 
     // --- OSCILLATOR GENERATION ---
     var makeOp = { |baseFreq, env, ratio, in|
-		// Note: 'env' is the time-varying ADSR (0.0 to 1.0)
-        // 'in' is the Phase Modulation from the matrix (0.0 to 12.57)
+		// Sine Oscillator
+		// - Freq: Base Pitch * Ratio
+		// - Phase: Modulated by input signal (FM)
+		// - Amp: Controlled by Envelope
 		SinOsc.ar((baseFreq * ratio), phase: in) * env
     };
 
@@ -77,22 +99,24 @@ SynthDef(\subSynth, { | baseFreq = 220, gate = 1 |
 	var opOut = Array.newClear(opCount);
 	var mixerUnitSum = getOpOutMixerSum.();
 
+    // Generate all 6 operators
 	opCount.do{|i|
-		var opInput = getOpInput.(i);
-        // Generate the unique envelope for this operator
-        var adsr = makeOpEnv.(i);
+		var opInput = getOpInput.(i); // Sum of all modulators
+        var adsr = makeOpEnv.(i);     // Current Envelope Value (0-1)
 
 		var op = makeOp.(baseFreq, adsr, opRatios[i], opInput);
-		newOpCtrlOutBank[i] = op;
-		opOut[i] = op * opOutMixer[i];
+
+		newOpCtrlOutBank[i] = op;     // Store for Feedback/Next Cycle
+		opOut[i] = op * opOutMixer[i]; // Send to main out if active
 	};
 
-    // Normalize output
+    // Normalize output to prevent clipping if multiple ops sum up
 	opOut =	if(mixerUnitSum != 0, {Mix(opOut) /  mixerUnitSum}, {0});
 
+    // Write internal signals to Local loop for next audio block
 	LocalOut.ar(newOpCtrlOutBank);
 
-	Out.ar(0, opOut !2);
+	Out.ar(0, opOut !2); // Stereo out
 
 }).add;
 )
@@ -176,55 +200,4 @@ OSCdef(\pyListener, { |msg|
 	roundArray.(envTimes, 0.01).postln;
 
 }, "/update_synth");
-)
-
-(
-var wiringMatrix =
-[
-	0,0,0,0,0,0,
-	1,0,0,0,0,0,
-	0,0,0,0,0,0,
-	0,0,0,0,0,0,
-	0,0,0,0,0,0,
-	0,0,0,0,0,0,
-];
-
-var outMix = [0,1,0,0,0,0];
-var ratios = [2,2,0,0,0,0];
-
-~synth = Synth.new("subSynth", [\baseFreq, 280, \opOutMixer, outMix, \opWiringMatrix, wiringMatrix, \opRatios, ratios]);
-
-w = Window("control", Rect(100, 100, 300, 260)).front;
-
-~text = StaticText(w, Rect(10, 80, 80, 200));
-~text.string = wiringMatrix;
-
-~slider = Slider(w, Rect(10, 10, 280, 20));
-~slider.action = { |sl|
-	wiringMatrix  =
-[
-	0,0,0,0,0,0,
-	sl.value,0,0,0,0,0,
-	0,0,0,0,0,0,
-	0,0,0,0,0,0,
-	0,0,0,0,0,0,
-	0,0,0,0,0,0,
-];
-    ~synth.set(\opWiringMatrix, wiringMatrix);
-	~text.string = wiringMatrix;
-};
-
-~slider2 = Slider(w, Rect(10, 30, 280, 20));
-~slider2.action = { |sl|
-	ratios  = [1,sl.value,0,0,0,0];
-    ~synth.set(\opRatios, ratios);
-};
-)
-
-(
-SynthDef(\DX7, { |baseFreq = 220|
-	var synthCount = 32;
-
-	var subSynths = Synth.new("subSynth", [\freq, 220]) !synthCount;
-}).add;
 )

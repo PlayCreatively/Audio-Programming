@@ -7,9 +7,14 @@ import re
 
 def dx7_level_to_amp(raw_val):
     """
-    DX7 Levels (0-99) are exponential.
-    ~ -0.75dB per step. 
-    Returns: 0.0 to 1.0
+    DX7 Levels (0-99) are exponential in nature.
+    Approx -0.75dB per step reduction from max.
+    
+    Args:
+        raw_val (int): 0-99 DX7 level
+        
+    Returns: 
+        float: Linear amplitude range 0.0 to 1.0
     """
     if raw_val == 0: return 0.0
     # Formula: 2 ^ ((val - 99) / 8)
@@ -20,9 +25,12 @@ def dx7_rate_to_duration(raw_val):
     """
     DX7 Rates (0-99) to Seconds.
     This is a rough approximation of the DX7 lookup table.
-    99 = Instant (~0ms)
-    0 = Infinite (~forever)
-    Typical fast attack (R=70) is ~50ms.
+    - 99 = Instant (~0ms)
+    - 0  = Infinite (~forever)
+    - Typical fast attack (R=70) is ~50ms.
+    
+    Note: DX7 hardware uses a lookup table for envelope rates.
+    This function uses a power curve heuristic to approximate it.
     """
     if raw_val >= 99: return 0.0
     if raw_val == 0: return 99  # Effectively infinite for envelopes
@@ -123,7 +131,8 @@ def get_dx7_algorithm(algo_index, feedback_int=0.0, out_level=[1.0]*6):
     # Feedback connects the operator to itself
     
     # This maps the integer 0-7 knob to the exponential 0.0 -> 4.0 gain
-    feedback_val = pow(2, feedback_int - 5) if feedback_int > 0 else 0
+    # Formula: 2^(val - 5) for val > 0.
+    feedback_val = (2.0 ** (feedback_int - 5)) if feedback_int > 0 else 0.0
     
     fb_src, fb_dst = spec["fb"]
     fb_src -= 1
@@ -338,11 +347,22 @@ def parse_voice_to_spec(voice_data, slot_number):
     }
 
 def process_syx(input_file, output_file):
+    """
+    Main processing function.
+    Reads a binary SYX file, splits it into voices, parses each voice,
+    and writes the resultant JSON array to a file.
+    
+    Args:
+        input_file (str): Path to source .SYX file.
+        output_file (str): Path to destination .json file.
+    """
     try:
         with open(input_file, 'rb') as f:
             data = f.read()
 
         # Header stripping logic
+        # Standard DX7 SYX files are 4104 bytes (header+footer) usually.
+        # Bulk dump payload is 4096 bytes (32 patches * 128 bytes).
         payload = None
         if len(data) == 4104:
             payload = data[6:4102]
@@ -417,7 +437,7 @@ def process_syx(input_file, output_file):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python parse_syx_real_units.py <input.syx> [output.json]")
+        print("Usage: python syx_parser.py <input.syx> [output.json]")
     else:
         i_file = sys.argv[1]
         o_file = sys.argv[2] if len(sys.argv) > 2 else "converted_patches.json"
