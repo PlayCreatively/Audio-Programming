@@ -1,7 +1,11 @@
 # AI collaboration portfolio
+
+## Foreword
+
+As my use of LLMs are heavily dialogue driven and due to them preferring lengthy replies, I don’t just trim the output; I go as far as to actively cherry-pick select sentences that capture the overall gist or match my immediate focus, based on my reply. So when reading the responds, keep in mind the major asterisk that they're heavily trimmed down.
 ## 1. Strategic AI Briefing Documentation
 ### 1.1 AI Incorporation 
-For this project, AI played the part of an informant, teacher, as well as an assistant programmer, therefore there was no direct project brief but instead more of a natural dialogue, as I was gauging the project's feasibility and informing myself on all the parts required to make the project happen.
+For this project, AI played the part of an informant, a teacher, as well as an assistant programmer, therefore there was no direct project brief but instead more of a natural dialogue, as I was gauging the project's feasibility and informing myself on all the parts required to make the project happen.
 
 **Prompt**
 
@@ -226,7 +230,7 @@ You'll notice some boxes (like Box 6 in Diagram 1) have a line connecting to the
 
 In further retrospect, I notice that regardless of how chaotic the operator wiring are, they always go from a higher index down to a lower index. Simply by that logic I can safely assume that calculating from the highest index down to the lowest ensures that the input is as fresh as it can be, only requiring me to reorder the calculations to get even closer to the DX7 hardware. 
 
-I believe I already had this thought early on, but since the wiring is so dynamic, and I wanted the freedom of exploring configurations outside of the hardwired DX7 configurations I thought that hardcoding in a single buffer would make the space symmetric. But if this single delay buffer has audible impact then it might have been the wrong decision.
+I believe I already had this thought early on, but since the wiring is so dynamic, and I wanted the freedom of exploring configurations outside of the hardwired DX7 configurations I thought that hardcoding in a single buffer would make the space symmetric (more on that in **2.3**). But if this single delay buffer has audible impact then it might have been the wrong decision.
 
 As usual, I made sure I understood what the LLM was saying and that we were on the same page:
 
@@ -249,7 +253,7 @@ My instinct says almost. You can create the same wiring using a different matrix
 Is this correct?
 ```
 
-I was worried about symmetry for the precise reason that the User Interface that would accompany this project is based on the idea that you can explore all the potential parameter space of a complex system like the one I'm building, but if the system had symmetries then it would directly work against the goal of creating a tool that helps you exhaustively explore the potential sound-space of a synth. Ideally the space should be dense and non-repeating, but my intuitive told me that the dynamic and free-form nature of this system would make it flexible enough to be able to represent, more or less, the same configuration with symmetrical wiring.  
+I was worried about symmetry for the precise reason that the User Interface that would accompany this project is based on the idea that you can explore all the potential parameter space of a complex system like the one I'm building, but if the system had symmetries then it would directly work against the goal of creating a tool that helps you exhaustively explore the potential sound-space of a synth in the most efficient manner possible. Ideally the space should be dense and non-repeating, but my intuition told me that the dynamic and free-form nature of this system would make it flexible enough to be able to represent, more or less, the same configuration with symmetrical wiring.  
 
 **Abridged LLM output (Gemini 3 Pro Preview)**
 
@@ -289,7 +293,7 @@ This confirms your suspicion: Because the system is standardized to "always use 
 You have designed a **Time-Invariant Directed Graph**. As long as the matrix values align with the intended signal flow direction, the system will work linearly.
 ```
 
-Indeed, since I'm using a single block delay cache, it does not matter in which order I calculate the operators as I'm not taking the recently baked output of one operator and shoving it straight into the next. Not to say this cache makes things drastically different; if we were to work straight on the freshly calculated output, at worst, an isomorphic variant of an algorithm will be wired in reverse order and you would end up with a single block delay, again. So forcing the cache makes the symmetry more clean.
+Indeed, since I'm using a single block delay cache, it does not matter in which order I calculate the operators as I'm not taking the recently baked output of one operator and shoving it straight into the next. Not to say this cache makes things drastically different; if we were to skip the cache and calculate the operator with live operator output (regardless of if it had been computed or not), at worst, an isomorphic variant of a perfectly ordered algorithm will be wired up in an exact reverse order and you would end up with a single block delay, again. So forcing the cache makes the symmetry more clean as the order of calculation will become irrelevant.
 
 **Prompt**
 
@@ -394,7 +398,7 @@ That loop can land on an operator (self-feedback) _or_ pass to an operator above
 Everything else in the topology is strictly feed-forward.
 ```
 
-To summarize the conversation above, we were not speaking the same language when it came to frequency modulation, LLM used the term feedback as meaning self modulation and I understood feedback as any sort of modulation driven by another operator. At first, I believed it to be hallucinating as the DX7 clearly had more modulating operators than 1 in each algorithm. Were I to shrug it off as a hallucination, as opposed to a misunderstanding, we might not have gotten to an understanding, and the ill-defined terminology we were both using might have risen somewhere else where it might not have been as obvious that we were speaking past each other.
+To summarize the conversation above, we were not speaking the same language when it came to frequency modulation. LLM used the term feedback as meaning self modulation and I understood feedback as any sort of modulation driven by another operator. At first, I believed it to be hallucinating as the DX7 clearly had more modulating operators than 1 in each algorithm. Were I to shrug it off as a hallucination, as opposed to a misunderstanding, we might not have gotten to an understanding, and the ill-defined terminology we were both using might have risen somewhere else where it might not have been as obvious that we were speaking past each other.
 
 ### 3.2 Inquiry
 
@@ -486,7 +490,7 @@ However, this is only relevant to jobs for which not enough time has been alloca
 ### 5.1 Original aims
 
 - **Creative goal:** Make a close enough simulation of the DX7 with the ability to read in old **MIDI System Exclusive files** (.syx) that contained famous 80s synth presets. 
-- **JTBD.** A purely personal journey and resulting synth that teaches me about FM synths and their power to create unique sounds, making me capable of future experimental sound work.
+- **JTBD.** A purely personal journey and a resulting synth that teaches me about FM synths and their power to create unique sounds, making me prepped up for future experimental sound work.
 - **Heuristics** (H1) working .syx parser; (H2) sound output recognized as a DX7.
 
 ### 5.2 Influences
@@ -495,7 +499,7 @@ However, this is only relevant to jobs for which not enough time has been alloca
 **Hardware:** **Yamaha DX7** was the north star but more specifically its emulation in the form of [Dexed](https://github.com/asb2m10/dexed) made it possible to audibly compare against using the exact same .syx files.
 ### 5.3 Implementation process
 
-- **Language/platform choice:** Choosing between [Faust](https://faust.grame.fr/), [Juce](https://juce.com/get-juce/) and [SuperCollider](https://supercollider.github.io/) (SC), I initially went for Faust as it compiled down to a CPP script which would be easy to integrate with any GUI framework I go with when creating the interface for the project which is my project for Sound and Music Programming and not this Audio Programming class. Faust also had an online editor to quickly get running with any sort of audio generation. But after learning about Open Sound Control (OSC) I settled on SC as I thought it be better to use the tools I was being taught in class. In hindsight, Faust might have been the more appropriately flexible tool to use.
+- **Language/platform choice:** Choosing between [Faust](https://faust.grame.fr/), [Juce](https://juce.com/get-juce/) and [SuperCollider](https://supercollider.github.io/) (SC), I initially went for Faust as it compiled down to a CPP script which would be easy to integrate with any GUI framework I go with when creating the interface for the project, which is my project for Sound and Music Programming and not this Audio Programming class. Faust also had an online editor to quickly get running with any sort of audio generation. But after learning about Open Sound Control (OSC) I settled on SC as I thought it be better to use the tools I was being taught in class. In hindsight, Faust might have been the more appropriately flexible tool to use, see **5.4**.
 - **Design decisions:** Due to my own aspirations I wanted to be able to linearly interpolate between algorithms and in order to do that I would have to move away from the binary operator wiring and move to what ChatGPT 5.1 succinctly called 'variable gain nodes', which simply means the connections will be linear as opposed to binary. With that, and representing the connections as a matrix (sometimes referred to as a "matrix circuit", see image), I can dynamically wire up any existing or hypothetical DX7 algorithm.
   
   <img src="attachments/Pasted%20image%2020251212143938.png" width="300">
@@ -505,7 +509,7 @@ However, this is only relevant to jobs for which not enough time has been alloca
 ### 5.4 Evaluation against aims and heuristics
 
 - **H1 working .syx parser:** As far as I can tell, the parser works as intended. Comparing the values from the resulting parsed JSON values, it seems to hold up, however due to the fact that the resulting audio output is difficult to liken to the DX7, it's hard to make a conclusive statement.
-- **H2 sound output recognized as a DX7:** As mentioned, the resulting output does not adhere to the expected output of a DX7 simulator.
+- **H2 sound output recognized as a DX7:** As mentioned, the resulting output does not adhere to the expected output of a DX7 simulator, most likely due to the feedback audibly careening into chaotic noise. Lowering the intensity of the feedback gets closer to the desired sound but more due to it removing the noise as opposed to matching the intended percussion. 
 
 If I had more time I might have aborted the multi-algorithm setup and gone for a single algorithm, hardcoding the nested frequency modulation and making use of the dedicated **`PMOsc`** UGen in Super Collider, as that might have resulted in a closer output parity; although, **`PMOsc`** doesn't have a phase parameter, making a DX7 simulation using vanilla Super Collider a potential lost cause.
 
@@ -516,11 +520,10 @@ If I had more time I might have aborted the multi-algorithm setup and gone for a
 - Gauthier, P. (n.d.). _Dexed_ [Source code]. GitHub. Retrieved December 13, 2025, from [https://github.com/asb2m10/dexed](https://github.com/asb2m10/dexed)
 
 **YouTube video**  
-- Grant Sanderson. (24, December 24). _But what is a Fourier series? | Chapter I, Essence of calculus_ [Video]. YouTube. [https://youtu.be/IQqtsm-bBRU?t=649](https://youtu.be/IQqtsm-bBRU?t=649)
-AI collaboration portfolio
+- Grant Sanderson. (24, December 24). _This open problem taught me what topology is_ [Video]. YouTube. [https://youtu.be/IQqtsm-bBRU?t=649](https://youtu.be/IQqtsm-bBRU?t=649)
 
 **Blog and articles**  
-- Colbert, P. (1983, November). _Yamaha DX7_. _Muzines_.[https://www.muzines.co.uk/articles/yamaha-dx7/4733](https://www.muzines.co.uk/articles/yamaha-dx7/4733)
-- Dent, J. (2019, October 21). _Yamaha DX7 algorithms_. DJ Jondent’s Blog. [https://djjondent.blogspot.com/2019/10/yamaha-dx7-algorithms.html](https://djjondent.blogspot.com/2019/10/yamaha-dx7-algorithms.html)
-- McAllister, M. (2025, June 2). _Yamaha DX7 history_. Guitar Center. [https://www.guitarcenter.com/riffs/gear-tips/keyboards--midi/yamaha-dx7-history](https://www.guitarcenter.com/riffs/gear-tips/keyboards--midi/yamaha-dx7-history)
--  Reid, G. (2000, May). More On Frequency Modulation. *SOUND ON SOUND*. [https://www.soundonsound.com/techniques/more-frequency-modulation](https://www.soundonsound.com/techniques/more-frequency-modulation)
+- Colbert, P. (1983, November). _Yamaha DX7_. Muzines. [https://www.muzines.co.uk/articles/yamaha-dx7/4733](https://www.muzines.co.uk/articles/yamaha-dx7/4733)
+- Dent, J. (2019, October 21). _Yamaha DX7 - Operators & Algorithms_. DJ Jondent’s Blog. [https://djjondent.blogspot.com/2019/10/yamaha-dx7-algorithms.html](https://djjondent.blogspot.com/2019/10/yamaha-dx7-algorithms.html)
+- McAllister, M. (2025, June 2). _The History of the Yamaha DX7_. Guitar Center. [https://www.guitarcenter.com/riffs/gear-tips/keyboards--midi/yamaha-dx7-history](https://www.guitarcenter.com/riffs/gear-tips/keyboards--midi/yamaha-dx7-history)
+-  Reid, G. (2000, May). _More On Frequency Modulation_. SOUND ON SOUND. [https://www.soundonsound.com/techniques/more-frequency-modulation](https://www.soundonsound.com/techniques/more-frequency-modulation)
