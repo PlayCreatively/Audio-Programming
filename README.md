@@ -1,7 +1,7 @@
 # Yamaha DX7 simulation in SuperCollider
 
 ## Overview
-- ### [Project Proposal](Obsidian/README%20-%20Proposal.md)
+- ### [Project Proposal](Obsidian/Alexander%20Þorgeirsson%202544706%20AUPRO%20proposal.md)
 
 This repository contains a SuperCollider implementation inspired by the Yamaha DX7 synthesizer. The DX7 is a classic digital synthesizer known for its distinctive FM synthesis capabilities. This project aims to *roughly* recreate the sound of the DX7 using SuperCollider, while adding a bit of dynamicity to the operator routing, driven by the goals of its sister project mentioned below.
 
@@ -16,5 +16,5 @@ The drive behind this project was to act as the second half of a synthesizer par
 2. Press `Ctrl + Enter` (or `Cmd + Enter` on Mac) when the caret is within two sets of parentheses `(...)` to evaluate the code blocks. Do this for all 3 code blocks in the file, sequentially.
 
 ## Documentation
-- ### [AI Collaboration Portfolio](Obsidian/README%20-%20AI%20collaboration%20portfolio.md)
+- ### [AI Collaboration Portfolio](Obsidian/Alexander%20Þorgeirsson%202544706%20AUPRO%20AI%20collaboration%20portfolio.md)
 
